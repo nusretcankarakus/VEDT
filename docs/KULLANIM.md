@@ -2,7 +2,19 @@
 
 Bu belge birleşik geliştirme imajının kullanım akışını anlatır. İmajın kabul durumunu ve SHA-256 özetini beraberindeki build/validation dosyalarından kontrol edin. Fiziksel donanım kabulü tamamlanmış ürün olarak değerlendirmeyin.
 
-Windows içeren imaj bu depoda herkese açık indirilebilir bir sürüm olarak dağıtılmıyor. Bu kılavuz yerelde hazırlanmış dosya içindir. [Kendi medyanızla oluşturma](GELISTIRME.md).
+## İndirme
+
+**[VEDT birleşik USB imajını indir — Google Drive](https://drive.google.com/file/d/1NOxrlyXA1J8_HA6QbCUYt4iy1yqf5YO3/view?usp=sharing)**
+
+Geliştirme adayı: `VEDT-combined-0.5-dev.img` · 13.692.305.408 bayt (yaklaşık 13,7 GB). Drive sayfasındaki **İndir** düğmesini kullanın. Bağlantı proje sahibi tarafından sağlanmıştır; Drive dosyasının içeriği ayrıca doğrulanmamıştır. İndirdiğiniz dosyanın SHA-256 değeri aşağıdakiyle eşleşmelidir:
+
+```text
+e21151d8259dd80c67dc1b7c5332e55987fec20115166277ab4c1133bd2aa9ff
+```
+
+**Uygun dahili disklerin bütün verileri silinir.** Yeni Windows ilk oturumu, fiziksel donanım ve Secure Boot kabulü tamamlanmadı. [USB'ye yazma ve kullanım](KULLANIM.md) · [Doğrulama kaydı](validation-0.5/acceptance.json).
+
+[Kendi medyanızla oluşturma](GELISTIRME.md).
 
 ## 1. Başlamadan önce
 

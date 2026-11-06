@@ -4,6 +4,18 @@ Türkçe arayüz ve raporlarla HDD/SSD testi için geliştirilen açık kaynak t
 
 **Geliştirme sürümüdür. Ham disk testleri hedef diskin bütün verilerini siler.** Otomatik mod, açılış USB'si dışındaki uygun dahili diskleri sırayla seçer. Birleşik geliştirme imajı oluşturuldu; fiziksel donanım kabulü ve yeni Windows akışının tam kurulum kabulü henüz tamamlanmadı.
 
+## USB imajını indir
+
+**[VEDT birleşik USB imajını indir — Google Drive](https://drive.google.com/file/d/1NOxrlyXA1J8_HA6QbCUYt4iy1yqf5YO3/view?usp=sharing)**
+
+Geliştirme adayı: `VEDT-combined-0.5-dev.img` · 13.692.305.408 bayt (yaklaşık 13,7 GB). Drive sayfasındaki **İndir** düğmesini kullanın. Bağlantı proje sahibi tarafından sağlanmıştır; Drive dosyasının içeriği ayrıca doğrulanmamıştır. İndirdiğiniz dosyanın SHA-256 değeri aşağıdakiyle eşleşmelidir:
+
+```text
+e21151d8259dd80c67dc1b7c5332e55987fec20115166277ab4c1133bd2aa9ff
+```
+
+**Uygun dahili disklerin bütün verileri silinir.** Yeni Windows ilk oturumu, fiziksel donanım ve Secure Boot kabulü tamamlanmadı. [USB'ye yazma ve kullanım](docs/KULLANIM.md) · [Doğrulama kaydı](docs/validation-0.5/acceptance.json).
+
 ## Mevcut durum — 6 Kasım 2026
 
 - SATA/NVMe kimlik denetimi ve açılış/rapor USB'sini koruma kontrolleri.
@@ -49,4 +61,4 @@ Yapay zekânın bağlantıları kendiliğinden açacağı garanti edilmez. İnte
 
 Proje kodu [MIT lisanslıdır](LICENSE). Vektron logosu ve markası bu lisansla lisanslanmaz; haklar hak sahibinde kalır. [Üçüncü taraf notları](THIRD-PARTY-NOTICES.md).
 
-Windows ISO/WIM, Windows lisansı ve üçüncü taraf ikilileri depoya dahil değildir. Windows içeren nihai Rufus imajı henüz yayımlanmadı.
+Windows ISO/WIM ve üçüncü taraf ikilileri Git deposuna dahil değildir. Birleşik geliştirme imajı için yukarıdaki harici Google Drive bağlantısı kullanılır. Windows lisansı/etkinleştirme sağlanmaz; Windows ve diğer bileşenlerin kendi lisans koşulları geçerlidir.
