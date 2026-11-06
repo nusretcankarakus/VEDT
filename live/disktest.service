@@ -1,0 +1,21 @@
+[Unit]
+Description=DiskTest86 console prototype
+After=systemd-vconsole-setup.service
+Conflicts=getty@tty1.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /opt/disktest86/live/boot.py
+WorkingDirectory=/opt/disktest86
+Environment=PYTHONPATH=/opt/disktest86
+Environment=PYTHONUTF8=1
+StandardInput=tty
+StandardOutput=tty
+StandardError=tty
+TTYPath=/dev/tty1
+TTYReset=yes
+TTYVHangup=yes
+Restart=no
+
+[Install]
+WantedBy=multi-user.target
