@@ -1,6 +1,6 @@
 # VEDT — Vektron Elektronik Disk Test
 
-Türkçe arayüz ve raporlarla HDD/SSD testi için geliştirilen açık kaynak teknik servis aracı. Önceki adı DiskTest86 idi; GitHub adresi ve dahili `disktest` paket adı uyumluluk için korunuyor.
+Türkçe arayüz ve raporlarla HDD/SSD testi için geliştirilen açık kaynak teknik servis aracı. Önceki adı DiskTest86 idi; GitHub deposu VEDT olarak yeniden adlandırıldı; dahili `disktest` paket adı uyumluluk için korunuyor.
 
 **Geliştirme sürümüdür. Ham disk testleri hedef diskin bütün verilerini siler.** Otomatik mod, açılış USB'si dışındaki uygun dahili diskleri sırayla seçer. Fiziksel donanım kabulü ve son birleşik USB imajı henüz tamamlanmadı.
 

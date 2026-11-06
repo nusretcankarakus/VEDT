@@ -1,5 +1,5 @@
 """Public references shared by machine-readable and human-readable reports."""
-PROJECT_URL = 'https://github.com/nusretcankarakus/disktest86'
+PROJECT_URL = 'https://github.com/nusretcankarakus/VEDT'
 REPORT_GUIDE = PROJECT_URL + '/blob/main/docs/RAPOR-REHBERI-V1.md'
 AI_GUIDE = PROJECT_URL + '/blob/main/docs/YAPAY-ZEKA-ILE-YORUMLAMA.md'
 REPORT_SCHEMA_VERSION = 1

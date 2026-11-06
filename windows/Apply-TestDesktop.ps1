@@ -32,7 +32,7 @@ function New-TestWallpaper([string]$Destination) {
         $graphics.DrawString('Vektron Elektronik Disk Test', $subtitle, $white, 195, 340)
         $graphics.DrawString('DİSK TESTİ İÇİN HAZIRLANMIŞ GEÇİCİ SİSTEM', $subtitle, $cyan, 195, 400)
         $graphics.DrawString('Raporlar masaüstündeki VEDT-Rapor klasöründedir.', $subtitle, $green, 195, 460)
-        $graphics.DrawString('github.com/nusretcankarakus/disktest86', $linkFont, $cyan, 195, 520)
+        $graphics.DrawString('github.com/nusretcankarakus/VEDT', $linkFont, $cyan, 195, 520)
         $graphics.DrawString('Türkçe rapor okuma kılavuzu ve açık kaynak kodu GitHub üzerinde.', $linkFont, $white, 195, 565)
         $graphics.FillRectangle($panel, 140, 660, 1640, 220)
         $graphics.FillRectangle($amber, 140, 660, 8, 220)
@@ -99,5 +99,5 @@ if (-not [DiskTestWallpaper]::SystemParametersInfo(20,0,$wallpaper,3)) { throw '
 
 $shortcut = Join-Path $desktop 'VEDT-GitHub.url'
 if (-not (Test-Path -LiteralPath $shortcut)) {
-    '[InternetShortcut]','URL=https://github.com/nusretcankarakus/disktest86' | Set-Content -LiteralPath $shortcut -Encoding ASCII
+    '[InternetShortcut]','URL=https://github.com/nusretcankarakus/VEDT' | Set-Content -LiteralPath $shortcut -Encoding ASCII
 }
