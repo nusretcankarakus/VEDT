@@ -37,7 +37,7 @@ def verified_report(root, item):
     files = manifest.get('files')
     if manifest.get('algorithm') != 'SHA-256' or not isinstance(files, dict) or not 3 <= len(files) <= 16:
         raise ValueError('Dosya özeti listesi geçersiz.')
-    if not {'report.pdf', 'report.html', 'session.json'}.issubset(files):
+    if 'session.json' not in files:
         raise ValueError('Zorunlu rapor dosyası eksik.')
     if len({name.casefold() for name in files}) != len(files):
         raise ValueError('Dosya adları Windows üzerinde belirsiz.')
@@ -50,6 +50,12 @@ def verified_report(root, item):
         if not isinstance(digest, str) or not re.fullmatch('[0-9a-f]{64}', digest) or sha256(path) != digest:
             raise ValueError('Rapor içeriği değiştirilmiş.')
     session = read_json(folder / 'session.json', 64 * 1024**2)
+    account = session.get('account_name')
+    report_name = session.get('report_file_stem', 'report')
+    if not isinstance(report_name, str) or not re.fullmatch('[A-Za-z0-9_.-]{1,75}', report_name) or (account and not report_name.startswith(account + '_')):
+        raise ValueError('Rapor adı hesap numarasıyla eşleşmiyor.')
+    if not {report_name + '.pdf', report_name + '.html'}.issubset(files):
+        raise ValueError('Numaralı rapor dosyaları eksik.')
     expected = item.get('identity')
     if (session.get('mode') != 'raw-device' or session.get('identity_authorized') is not True or
         session.get('full_capacity_verified') is not True or session.get('status') not in {'PASS', 'WARNING'} or session.get('error') is not None):

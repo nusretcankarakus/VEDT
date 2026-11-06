@@ -50,6 +50,7 @@ python3
 python3-reportlab
 fio
 smartmontools
+grub-common
 fonts-dejavu-core
 console-setup
 kbd

@@ -41,6 +41,9 @@ Hızlar MiB/sn'dir (1 MiB = 1.048.576 bayt). HDD/SATA SSD/NVMe aynı beklentiyle
 
 ## Dosyalar ve Windows
 
-`session.json` ayrıntıları, PDF/HTML okunabilir raporu, `manifest.json` SHA-256 dosya özetlerini taşır. Manifest kazara değişikliği saptar; dijital imza veya bağımsız gerçeklik kanıtı değildir. Zamanları saat dilimiyle değerlendirin; JSON'da UTC olabilir.
+`session.json` ayrıntıları, `VEDT54_SERI-NUMARASI.pdf` / `.html` okunabilir raporu, `manifest.json` SHA-256 dosya özetlerini taşır. Manifest kazara değişikliği saptar; dijital imza veya bağımsız gerçeklik kanıtı değildir. Zamanları saat dilimiyle değerlendirin; JSON'da UTC olabilir.
 
 Test başarısı Windows'un kurulduğu, ilk oturumun açıldığı veya hedef rapor kopyasının oluştuğu anlamına gelmez. Bu adımlar ayrı doğrulanır. Birleşik Linux → Windows USB zinciri ve Secure Boot kabulü henüz tamamlanmadı.
+
+
+Raporun sonundaki “Yapay zekâ ile yorumla — hazır metin” alıntısı sonuç verisini de içerir. Bölümü tamamen kopyalayıp yapıştırabilirsiniz; dış hizmetin internete erişmesi garanti değildir. Windows oturum/masaüstü klasör adı `VEDT54`, dosya adı `VEDT54_SERI-NUMARASI.pdf` biçimindedir. Dosya adı için seri güvenli biçime çevrilir/kısaltılır, rapor içindeki tam seri değişmez.

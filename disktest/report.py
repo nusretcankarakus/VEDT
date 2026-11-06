@@ -4,8 +4,10 @@ import base64
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
-from .report_content import sections, stage_rows, temperature_rows
+from .report_content import sections, stage_rows, temperature_rows, ai_prompt
+from .naming import report_stem
 from .project import references, PROJECT_URL, REPORT_GUIDE, AI_GUIDE
 
 
@@ -27,7 +29,11 @@ def verify_manifest(directory):
             errors.append(f'Geçersiz manifest yolu: {name}')
         elif not path.is_file() or digest(path) != expected:
             errors.append(f'Eksik veya değiştirilmiş dosya: {name}')
-    if 'session.json' not in manifest['files'] or 'report.html' not in manifest['files']:
+    session_path = root / 'session.json'
+    session = json.loads(session_path.read_text(encoding='utf-8')) if session_path.is_file() else {}
+    account = session.get('account_name')
+    html_name = report_stem(session) + '.html'
+    if 'session.json' not in manifest['files'] or html_name not in manifest['files']:
         errors.append('Zorunlu rapor dosyaları manifestte eksik.')
     return errors
 
@@ -35,6 +41,11 @@ def verify_manifest(directory):
 def write_report(session, output, with_pdf=True):
     session = dict(session)
     session['documentation'] = references(session['version'])
+    account = session.get('account_name')
+    if account is not None and (not isinstance(account, str) or not re.fullmatch(r'VEDT[1-9][0-9]{0,14}', account)):
+        raise ValueError('Rapor hesap numarası geçersiz.')
+    report_name = report_stem(session)
+    session['report_file_stem'] = report_name
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
     directory = output / session['id']
@@ -65,10 +76,13 @@ def write_report(session, output, with_pdf=True):
             ''.join('<p><a href="' + escape(url, quote=True) + '">' + escape(label) + '</a></p>'
                     for label, url in [('VEDT açık kaynak projesi', PROJECT_URL),
                                        ('Türkçe rapor okuma kılavuzu (şema 1)', REPORT_GUIDE),
-                                       ('Yapay zekâ ile rapor yorumlama', AI_GUIDE)]) + '</main></html>')
-    (directory / 'report.html').write_text(html, encoding='utf-8')
+                                       ('Yapay zekâ ile rapor yorumlama', AI_GUIDE)]) +
+            '<h2>Yapay zekâ ile yorumla — hazır metin</h2><p>Aşağıdaki alıntıyı tamamen kopyalayıp yapay zekâya yapıştırabilirsiniz. Paylaşmadan önce hata/uyarı metinlerini gözden geçirin.</p>' +
+            '<blockquote style="white-space:pre-wrap;background:#edf4fc;border-left:5px solid #145581;padding:18px;font-size:14px">' +
+            escape(ai_prompt(session)) + '</blockquote></main></html>')
+    (directory / (report_name + '.html')).write_text(html, encoding='utf-8')
     if with_pdf:
-        _pdf(session, directory / 'report.pdf')
+        _pdf(session, directory / (report_name + '.pdf'))
     files = {p.name: digest(p) for p in sorted(directory.iterdir()) if p.is_file()}
     (directory / 'manifest.json').write_text(json.dumps({'algorithm': 'SHA-256', 'files': files}, indent=2), encoding='utf-8')
     for file in directory.iterdir():
@@ -134,6 +148,12 @@ def _pdf(session, path):
         story.extend([Paragraph('<link href="' + escape(url, quote=True) + '">' + escape(label) +
                                 '</link>', styles['Normal']), Spacer(1, 7)])
     story.append(Paragraph(escape(PROJECT_URL), styles['Normal']))
+    story.extend([PageBreak(), Paragraph('Yapay zekâ ile yorumla — hazır metin', styles['Heading1']),
+                  Paragraph('Aşağıdaki alıntıyı tamamen kopyalayıp yapay zekâya yapıştırabilirsiniz. Paylaşmadan önce hata/uyarı metinlerini gözden geçirin.', styles['Normal']), Spacer(1, 12)])
+    quote_style = ParagraphStyle('VEDTQuote', parent=styles['Normal'], backColor=colors.HexColor('#edf4fc'),
+                                borderPadding=8, leftIndent=10, rightIndent=10, spaceAfter=8)
+    for line in ai_prompt(session).splitlines():
+        story.append(Paragraph(escape(line) if line else '&#160;', quote_style))
     def footer(canvas, doc):
         canvas.setFont('DiskTest', 8)
         canvas.drawRightString(A4[0] - 48, 23, f'Sayfa {doc.page}')

@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import subprocess
 
+from .naming import report_stem
 from .numbering import reserve_account
 from .dashboard import Dashboard, clean
 from .device import SafetyError, active_users, descendants, identity, inventory, select_target, settle
@@ -56,7 +57,7 @@ def checkpoint(reports, record):
         os.fsync(stream.fileno())
     os.replace(temporary, reports / 'toplu-sonuc.json')
     rows = ''.join('<tr><td>' + escape(row['serial']) + '</td><td>' + escape(status_text(row['status'])) +
-                   '</td><td><a href="' + escape(row['report'], quote=True) + '/report.html">Raporu aç</a></td><td>' +
+                   '</td><td><a href="' + escape(row['report'], quote=True) + '/' + escape(row.get('report_file_stem', 'report'), quote=True) + '.html">Raporu aç</a></td><td>' +
                    ('Doğrulandı' if row.get('target_copy', {}).get('verified') else
                     'Windows aşaması bekleniyor' if row.get('windows_eligible_test_result') else 'Windows kurulmayacak') + '</td></tr>'
                    for row in record['results'])
@@ -71,7 +72,7 @@ def checkpoint(reports, record):
     os.sync()
 
 
-def run_batch(reports, *, boot_usb_verified=False):
+def run_batch(reports, *, boot_usb_verified=False, numbering_reports=None):
     if boot_usb_verified is not True:
         raise SafetyError('Kalıcı rapor alanının açılış USB’sinde olduğu doğrulanmalı.')
     import reportlab
@@ -95,12 +96,12 @@ def run_batch(reports, *, boot_usb_verified=False):
         session = run_raw(settings, target.serial, reports, screen, accept_data_loss=True)
         session['report_copy_plan'] = ('Bu raporun USB nüshası kaydedildi. Hedefte ayrı rapor bölümü oluşturulmaz. '
             'Windows kurulum aşaması hazır olduğunda ikinci nüsha test kullanıcısının masaüstüne bırakılacaktır. '
-            'Bu sürüm Windows kurulumu yapmaz; masaüstü nüshası henüz oluşturulmadı.')
-        session['account_name'] = reserve_account(reports, session['id'])
+            'Masaüstü nüshası Windows hazırlığı ve ilk oturum tamamlandıktan sonra kullanılabilir.')
+        session['account_name'] = reserve_account(numbering_reports or reports, session['id'])
         directory = write_report(session, reports)
         os.sync()
         row = {'serial': target.serial, 'status': session['status'], 'report': directory.name,
-               'full_capacity_verified': session['full_capacity_verified'], 'account_name': session['account_name']}
+               'full_capacity_verified': session['full_capacity_verified'], 'account_name': session['account_name'], 'report_file_stem': report_stem(session)}
         row['windows_eligible_test_result'] = (session.get('full_capacity_verified') is True and
             not session.get('error') and len(session['stages']) == 6 and
             all(stage['status'] == 'PASS' for stage in session['stages']))

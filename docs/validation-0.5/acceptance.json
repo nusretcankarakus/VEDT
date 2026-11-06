@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-06",
+  "version": "0.5.0.dev0",
+  "candidate": {
+    "file": "VEDT-combined-0.5-dev.img",
+    "bytes": 13692305408,
+    "sha256": "e21151d8259dd80c67dc1b7c5332e55987fec20115166277ab4c1133bd2aa9ff",
+    "integrity_status": "verified-on-host",
+    "live_files_sha256_checked": 279,
+    "embedded_install_wim_sha256": "b0beb7f6fe12d5d31c3726640bdd28ddd125abfbc5e25243234adcdfcbfe5b66"
+  },
+  "source_checks": {
+    "windows": {
+      "passed": 151,
+      "skipped": 3
+    },
+    "linux_before_inventory_guard": {
+      "passed": 150,
+      "skipped": 3
+    },
+    "inventory_guard_targeted_checks_passed": true
+  },
+  "native_virtual_checks": {
+    "machine": "QEMU q35 / x64 UEFI / TCG",
+    "internal_targets": [
+      "SATA 64 MiB",
+      "NVMe 64 MiB"
+    ],
+    "six_stages_passed_per_target": true,
+    "report_manifest_verified": true,
+    "fresh_accounts": [
+      "VEDT1",
+      "VEDT2"
+    ],
+    "same_disk_restart_created_no_new_job_or_account": true,
+    "new_disk_identity_started_new_job": true,
+    "next_accounts": [
+      "VEDT3",
+      "VEDT4"
+    ],
+    "linux_to_winpe_reboot_verified": true,
+    "mismatched_job_rejected_before_target_write": true,
+    "safety_case_target_hashes_unchanged": true,
+    "keyboard_events": 0,
+    "post_test_vm_stop": "QMP quit after completion; not a clean-shutdown/power-loss acceptance"
+  },
+  "not_accepted": [
+    "New >=64 GiB full Linux test to numbered Windows first logon and two report copies",
+    "Independent Windows boot of every target",
+    "Physical SATA/NVMe hardware",
+    "Secure Boot",
+    "Power interruption recovery",
+    "Prior Windows AppXSvc crashes unresolved"
+  ],
+  "distribution": {
+    "windows_containing_image_publicly_uploaded": false,
+    "source_license": "MIT, excluding logos and third-party components"
+  }
+}

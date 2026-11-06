@@ -59,6 +59,10 @@ def main():
         if not persistent:
             print('\033[1;31mAçılış USB rapor alanı doğrulanamadı. Hiçbir diske yazılmadı.\033[0m')
             return 2
+        if 'disktest.batchcheck=1' not in Path('/proc/cmdline').read_text().split():
+            from disktest.combined import run
+            if run(store):
+                return 0
         from disktest.batch import run_batch
         record = run_batch(store, boot_usb_verified=True)
         if 'disktest.batchcheck=1' in Path('/proc/cmdline').read_text().split():
@@ -121,6 +125,7 @@ if __name__ == "__main__":
     except Exception as exc:
         if 'disktest.unattended=1' in Path('/proc/cmdline').read_text().split():
             print('\033[1;31mOtomatik işlem durduruldu. USB rapor alanı, araçlar veya aygıt koşulları doğrulanamadı.\033[0m', flush=True)
+            print(str(exc), flush=True)
             raise SystemExit(2)
         if "disktest.autotest=1" in Path("/proc/cmdline").read_text().split():
             with open("/dev/ttyS0", "w") as serial:

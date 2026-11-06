@@ -2,23 +2,22 @@
 
 Türkçe arayüz ve raporlarla HDD/SSD testi için geliştirilen açık kaynak teknik servis aracı. Önceki adı DiskTest86 idi; GitHub deposu VEDT olarak yeniden adlandırıldı; dahili `disktest` paket adı uyumluluk için korunuyor.
 
-**Geliştirme sürümüdür. Ham disk testleri hedef diskin bütün verilerini siler.** Otomatik mod, açılış USB'si dışındaki uygun dahili diskleri sırayla seçer. Fiziksel donanım kabulü ve son birleşik USB imajı henüz tamamlanmadı.
-
-![VEDT duvar kâğıdı](docs/branding/vedt-wallpaper.png)
+**Geliştirme sürümüdür. Ham disk testleri hedef diskin bütün verilerini siler.** Otomatik mod, açılış USB'si dışındaki uygun dahili diskleri sırayla seçer. Birleşik geliştirme imajı oluşturuldu; fiziksel donanım kabulü ve yeni Windows akışının tam kurulum kabulü henüz tamamlanmadı.
 
 ## Mevcut durum — 6 Kasım 2026
 
 - SATA/NVMe kimlik denetimi ve açılış/rapor USB'sini koruma kontrolleri.
 - Altı aşama: örnek sıralı okuma, rastgele okuma, tam kapasite yazma, tam kapasite doğrulama, karma erişim ve son tam kapasite doğrulama.
 - SMART, desteklenen sensörlerden sıcaklık; boşta/yükte/aşama bazlı ortalama, en düşük ve en yüksek değerler.
-- Renkli Türkçe konsol, genel özetin ardından teknik ayrıntılar içeren Türkçe PDF/HTML/JSON ve SHA-256 dosya manifesti.
+- Renkli Türkçe konsol, genel özetin ardından teknik ayrıntılar içeren Türkçe PDF/HTML/JSON, SHA-256 manifesti ve verisi dahil hazır yapay zekâ yorumlama alıntısı.
 - VEDT adı, Vektron logosu ve mavi-beyaz duvar kâğıdı/rapor tasarımı.
 - USB'de saklanan numaratör: yeni disk testlerinde `VEDT1`, `VEDT2`, …; aynı rapor kimliğine aynı numara. Farklı USB'lerin sayaçları bağımsızdır; bu numara gerçek müşteri kaydı değildir.
+- Oturum `VEDT54` ise rapor `VEDT54_SERI-NUMARASI.pdf`, masaüstü klasörü `VEDT54` olur.
 - Windows hazırlık kodu: Türkçe Windows 11 Pro, numaralı yerel VEDT hesabı, masaüstüne rapor ve geçici kullanım uyarılı duvar kâğıdı.
 
-**Windows hazırlığı tamamlanmış genel otomatik kurulum değildir.** Ayrı QEMU laboratuvarında önceki `test` hesabıyla ilk oturum ve rapor kopyası doğrulandı. Yeni VEDT hesabı/numaratörü kod kontrollerinden geçti; yeni Windows ilk oturum kabulü yapılmadı. Windows laboratuvarında uygulama hizmeti çökme uyarıları da kaydedildi; sorun çözülmüş sayılmıyor.
+**Birleşik akış Linux testlerini WinPE kurulumuna bağlar; üretim kabulü henüz verilmemiştir.** Ayrı QEMU laboratuvarında önceki `test` hesabıyla ilk oturum ve rapor kopyası doğrulandı. Yeni VEDT hesabı/numaratörü kod kontrollerinden geçti; yeni Windows ilk oturum kabulü yapılmadı. Windows laboratuvarında uygulama hizmeti çökme uyarıları da kaydedildi; sorun çözülmüş sayılmıyor.
 
-Son Windows kaynak kontrolü: **144 başarılı, 3 Linux'a özgü test atlandı**. Önceki 0.4 USB sürümünde 64 MiB sanal SATA/NVMe testleri doğrulandı. Bunlar fiziksel disk veya son Linux → Windows zinciri kabulü yerine geçmez. ATTO dahil değildir.
+Son Windows kaynak kontrolü: **151 başarılı, 3 Linux'a özgü test atlandı**. Yeni 0.5 birleşik imajında 64 MiB sanal SATA ve NVMe disklerinde altı aşama doğrulandı; Linux → WinPE geçişi ve geçersiz işin yazmadan reddedilmesi de kontrol edildi. Bunlar fiziksel disk veya son Linux → Windows zinciri kabulü yerine geçmez. ATTO dahil değildir.
 
 ## Güvenli dosya demosu
 
@@ -36,6 +35,8 @@ python -m pytest -q
 `demo` yeni geçici normal dosya üzerinde çalışır; fiziksel disk sağlığını ölçmez. Ham aygıt/otomatik mod silme yetkisi gerektirir. Üretim bilgisayarında deneme amacıyla otomatik modu başlatmayın.
 
 ## Belgeler
+
+- [USB hazırlama ve adım adım kullanım](docs/KULLANIM.md)
 
 - [Türkçe rapor okuma kılavuzu — şema 1](docs/RAPOR-REHBERI-V1.md)
 - [Yapay zekâ ile rapor yorumlama](docs/YAPAY-ZEKA-ILE-YORUMLAMA.md)

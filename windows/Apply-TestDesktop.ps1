@@ -31,7 +31,7 @@ function New-TestWallpaper([string]$Destination) {
         $graphics.DrawString('VEDT', $title, $white, 185, 200)
         $graphics.DrawString('Vektron Elektronik Disk Test', $subtitle, $white, 195, 340)
         $graphics.DrawString('DİSK TESTİ İÇİN HAZIRLANMIŞ GEÇİCİ SİSTEM', $subtitle, $cyan, 195, 400)
-        $graphics.DrawString('Raporlar masaüstündeki VEDT-Rapor klasöründedir.', $subtitle, $green, 195, 460)
+        $graphics.DrawString('Raporlar masaüstündeki VEDT numaralı klasörünüzdedir.', $subtitle, $green, 195, 460)
         $graphics.DrawString('github.com/nusretcankarakus/VEDT', $linkFont, $cyan, 195, 520)
         $graphics.DrawString('Türkçe rapor okuma kılavuzu ve açık kaynak kodu GitHub üzerinde.', $linkFont, $white, 195, 565)
         $graphics.FillRectangle($panel, 140, 660, 1640, 220)
@@ -61,7 +61,10 @@ if ((Get-FileHash -LiteralPath (Join-Path $sourceRoot 'manifest.json') -Algorith
 }
 $manifest = Get-Content -LiteralPath (Join-Path $sourceRoot 'manifest.json') -Raw -Encoding UTF8 | ConvertFrom-Json
 if ($manifest.algorithm -ne 'SHA-256') { throw 'Desteklenmeyen dosya özeti yöntemi.' }
-foreach ($required in @('report.pdf','report.html','session.json')) {
+$session = Get-Content -LiteralPath (Join-Path $sourceRoot 'session.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+$stem = $session.report_file_stem
+if ($stem -notmatch '^[A-Za-z0-9_.-]{1,75}$' -or -not $stem.StartsWith($env:USERNAME + '_') -or $session.account_name -ne $env:USERNAME) { throw 'Rapor numarası oturumla eşleşmiyor.' }
+foreach ($required in @(($stem + '.pdf'),($stem + '.html'),'session.json')) {
     if ($required -notin @($manifest.files.PSObject.Properties.Name)) { throw 'Zorunlu rapor dosyası eksik.' }
 }
 foreach ($entry in $manifest.files.PSObject.Properties) {
@@ -70,7 +73,7 @@ foreach ($entry in $manifest.files.PSObject.Properties) {
     if ((Get-FileHash -LiteralPath $sourceFile -Algorithm SHA256).Hash.ToLower() -ne $entry.Value) { throw 'Rapor özeti uyuşmuyor.' }
 }
 $desktop = [Environment]::GetFolderPath('DesktopDirectory')
-$destination = Join-Path $desktop 'VEDT-Rapor'
+$destination = Join-Path $desktop $env:USERNAME
 if (-not (Test-Path -LiteralPath $destination)) {
     New-Item -ItemType Directory -Path $destination -ErrorAction Stop | Out-Null
 } elseif ((Get-Item -LiteralPath $destination).Attributes -band [IO.FileAttributes]::ReparsePoint) {

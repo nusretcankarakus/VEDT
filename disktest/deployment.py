@@ -11,14 +11,14 @@ def prepare_plan(reports, batch):
     for row in batch['results']:
         target = identities[row['serial']]
         folder = reports / row['report']
-        if not row.get('windows_eligible_test_result') or verify_manifest(folder):
-            skipped.append({'serial': target['serial'], 'reason': 'Bütün disk testleri başarıyla tamamlanmadı.'})
+        if target['size_bytes'] < 64 * 1024**3 or not row.get('windows_eligible_test_result') or verify_manifest(folder):
+            skipped.append({'serial': target['serial'], 'reason': 'Windows için tam başarılı test ve en az 64 GiB gerekli.'})
             continue
         targets.append({'identity': target, 'test_report': row['report'],
                         'manifest_sha256': digest(folder / 'manifest.json'),
                         'account_name': row['account_name'],
-                        'desktop_report': 'Users/Default/Desktop/VEDT-Rapor',
-                        'installation_state': 'iso-and-installer-not-ready'})
+                        'desktop_report': 'Users/Default/Desktop/' + row['account_name'],
+                        'installation_state': 'pending-winpe'})
     plan = {'schema_version': 2, 'enabled': False, 'edition': 'Professional', 'language': 'tr-TR',
             'account_policy': 'per-target-vedt-number', 'visible_windows_volumes': 1,
             'separate_report_partition': False, 'targets': targets, 'skipped': skipped,

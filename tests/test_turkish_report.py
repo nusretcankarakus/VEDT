@@ -29,6 +29,17 @@ def test_late_smart_failure_does_not_get_successful_general_summary():
     assert 'sağlamdır denilemez' in conclusion(value)
 
 
+def test_numbered_report_filename_and_quoted_prompt_share_the_test_evidence(tmp_path):
+    value = session()
+    value['account_name'] = 'VEDT54'
+    value['target']['identity']['serial'] = 'SN/12345'
+    folder = write_report(value, tmp_path, with_pdf=False)
+    html = (folder / 'VEDT54_SN_12345.html').read_text(encoding='utf-8')
+    assert '<blockquote' in html and 'Yapay zekâ ile yorumla' in html
+    assert 'SN/12345' in html and 'WARNING' in html
+    assert verify_manifest(folder) == []
+
+
 def test_colored_screen_sanitizes_device_text_and_finishes_at_100_percent(tmp_path):
     class Terminal(StringIO):
         def isatty(self):
