@@ -1,3 +1,7 @@
+# 0.7 — grafik ekran ve altı aşama süreleri / 9 Kasım 2026
+
+[0.7 değişiklikleri ve kurulum](GUNCELLEME-0.7.md) · [Doğrulama kaydı](validation-0.7/acceptance.json). Tam kapasite ve Windows kabul koşulları korunur. Fiziksel ekran/USB, yeni Windows ilk oturum ve Secure Boot kabulü tamamlanmadı.
+
 # Güncelleme — 9 Kasım 2026 / 0.6.0.dev0
 
 Yarım işte R ve SIL onayıyla yeniden test, eski kayıtların korunması ve tam alan büyük blok/son parça I/O eklendi. [Güncelleme adımları ve süre sınırları](GUNCELLEME-0.6.md). 158 Windows kaynak testi geçti; 7 Linux testi atlandı. Linux’ta yeni normal dosyalarda gerçek fio ile 4 tam alan/son parça/bozulma kontrolü geçti. Donanımda hızlanma oranı henüz ölçülmedi. Yeni sürümün doğrulama kaydı validation-0.6/acceptance.json dosyasındadır.

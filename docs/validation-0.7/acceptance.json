@@ -1,0 +1,123 @@
+{
+  "date": "2026-11-09",
+  "version": "0.7.0.dev0",
+  "artifact": {
+    "file": "VEDT-0.7-USB-GUNCELLEME.zip",
+    "bytes": 891558079,
+    "sha256": "0431f83e2d8d1eedb1d8d6a72b98e2e31196e2c7b7eb7a248b0f24dbd75d3361",
+    "root_sha256": "ab259ef051147e6bcaa787672c42dfdfbd65d2089c5577b2b27f845d80d4ab5d",
+    "grub_sha256": "d522e186d05fe4b03aa3e32603d91603575a9e4bc6ae53fa3409da6797e6ef09",
+    "all_zip_members_crc_verified": true,
+    "root_and_grub_hashes_verified": true
+  },
+  "source_checks": {
+    "windows_passed": 169,
+    "linux_only_skipped_on_windows": 7,
+    "linux_targeted_passed": 13,
+    "covers": [
+      "six-stage pending state",
+      "stage vs whole-disk ETA",
+      "weighted overall progress",
+      "tail keeps stage timer",
+      "failure leaves future stages pending",
+      "startup benchmark not extrapolated",
+      "framebuffer RGB/BGR formats",
+      "display failure falls back to text",
+      "actual fio with full capacity, tails and last-byte corruption"
+    ]
+  },
+  "windows_updater_regular_file_simulation": {
+    "passed": 8,
+    "cases": [
+      "success",
+      "decline",
+      "bad-hash",
+      "root copy failure rollback",
+      "grub copy failure rollback",
+      "unknown-grub refusal",
+      "mixed update repair",
+      "already-current idempotence"
+    ],
+    "physical_USB_updated": false
+  },
+  "native_vm": {
+    "machine": "QEMU x64 UEFI, 1920x1080 monitor EDID",
+    "root_sha256": "90ec11a3956719985a544467ba0e8d8d6c3c53027886b0adca33a992f3b63900",
+    "graphics_observed": true,
+    "captured_all_six_active_stages": true,
+    "resolution": [
+      1920,
+      1080
+    ],
+    "reports": [
+      {
+        "serial": "VEDT-QA-NVME",
+        "bytes": 67112960,
+        "account": "VEDT1",
+        "six_stages_passed": true,
+        "report_manifest_verified": true,
+        "stage_and_overall_times_recorded": true,
+        "overall_estimate_observed": true
+      },
+      {
+        "serial": "VEDT-QA-SATA",
+        "bytes": 67109376,
+        "account": "VEDT2",
+        "six_stages_passed": true,
+        "report_manifest_verified": true,
+        "stage_and_overall_times_recorded": true,
+        "overall_estimate_observed": true
+      }
+    ],
+    "medium": "Owned Linux-only acceptance image; no Windows payload",
+    "physical_hardware_tested": false,
+    "shutdown": "Ctrl+Alt+Delete after completion; QEMU no-reboot exits",
+    "fat_reader_dirty_flag_warning": false
+  },
+  "scope": {
+    "only_current_disk_six_stages_in_overall_time": true,
+    "Windows_installation_time_included": false,
+    "sampled_test_replaced_full_test": false
+  },
+  "not_accepted": [
+    "Physical display/USB compatibility",
+    "Full Windows first logon",
+    "Secure Boot",
+    "Prior Windows AppXSvc crashes unresolved"
+  ],
+  "native_vm_final_root": {
+    "machine": "QEMU x64 UEFI, 1920x1080 monitor EDID",
+    "root_sha256": "ab259ef051147e6bcaa787672c42dfdfbd65d2089c5577b2b27f845d80d4ab5d",
+    "graphics_observed": true,
+    "captured_all_six_active_stages": false,
+    "resolution": [
+      1920,
+      1080
+    ],
+    "reports": [
+      {
+        "serial": "VEDT-QA-SATA",
+        "bytes": 67109376,
+        "account": "VEDT4",
+        "six_stages_passed": true,
+        "report_manifest_verified": true,
+        "stage_and_overall_times_recorded": true,
+        "overall_estimate_observed": true
+      },
+      {
+        "serial": "VEDT-QA-NVME",
+        "bytes": 67112960,
+        "account": "VEDT3",
+        "six_stages_passed": true,
+        "report_manifest_verified": true,
+        "stage_and_overall_times_recorded": true,
+        "overall_estimate_observed": true
+      }
+    ],
+    "medium": "Owned Linux-only acceptance image; no Windows payload",
+    "physical_hardware_tested": false,
+    "shutdown": "VM exited before final inspection; final shutdown method not observed",
+    "fat_reader_dirty_flag_warning": true,
+    "final_result_panel_persistence_observed": false
+  }
+}

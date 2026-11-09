@@ -92,7 +92,7 @@ def run_batch(reports, *, boot_usb_verified=False, numbering_reports=None):
         persistent_reports(reports)  # Stop rather than erase without USB report capacity.
         settings = RawSettings(target, allow_destroy=True, laboratory=False, timeout_seconds=604800,
                                mixed_operations=4096, idle_observation_seconds=15)
-        screen = Dashboard(target, laboratory=False)
+        screen = Dashboard(target, laboratory=False, keep_result=True)
         session = run_raw(settings, target.serial, reports, screen, accept_data_loss=True)
         session['report_copy_plan'] = ('Bu raporun USB nüshası kaydedildi. Hedefte ayrı rapor bölümü oluşturulmaz. '
             'Windows kurulum aşaması hazır olduğunda ikinci nüsha test kullanıcısının masaüstüne bırakılacaktır. '

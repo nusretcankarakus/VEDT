@@ -37,7 +37,9 @@ def test_full_capacity_large_io_and_tail_with_real_fio(tmp_path, monkeypatch, ta
         return real_popen(command,*args,**kwargs)
     monkeypatch.setattr(raw.subprocess,'Popen',launch)
     identity=Identity('OWNED-FILE','Test file',size,'test-wwn')
-    result=raw.run_raw(raw.RawSettings(identity,allow_destroy=True,timeout_seconds=120),identity.serial,tmp_path,accept_data_loss=True)
+    events=[]
+    result=raw.run_raw(raw.RawSettings(identity,allow_destroy=True,timeout_seconds=120),identity.serial,tmp_path,events.append,accept_data_loss=True)
+    assert all(row['status']=='PENDING' for row in events[0]['stage_states'])
     if corrupt:
         assert injected and result['status']=='FAIL'
         assert result['full_capacity_verified'] is False
@@ -48,6 +50,10 @@ def test_full_capacity_large_io_and_tail_with_real_fio(tmp_path, monkeypatch, ta
         assert all(s['status']=='PASS' for s in result['stages'])
         assert all(result['stages'][i]['bytes']==size for i in (2,3,5))
         assert result['full_capacity_verified'] is True
+        writes=[e for e in events if e.get('stage_index')==2]
+        assert writes and all(a['stage_elapsed_seconds']<=b['stage_elapsed_seconds'] for a,b in zip(writes,writes[1:]))
+        if tail:
+            assert any(e['stage_states'][2]['status']=='RUNNING' and e['stage_bytes']==64*1024**2 for e in writes)
         for item in result['fio_results']:
             if item['stage'] in [result['stages'][i]['name'] for i in (2,3,5)]:
                 assert '--ioengine=libaio' in item['argv']

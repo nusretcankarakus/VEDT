@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "disktest86"
-version = "0.6.0.dev0"
+version = "0.7.0.dev0"
 description = "VEDT - Vektron Elektronik Disk Test"
 license = {file = "LICENSE"}
 requires-python = ">=3.11"
-dependencies = ["reportlab>=4,<5"]
+dependencies = ["reportlab>=4,<5", "Pillow>=10.1,<13"]
 
 [project.optional-dependencies]
 test = ["pytest>=8,<10"]

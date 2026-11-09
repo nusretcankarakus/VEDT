@@ -4,6 +4,20 @@ Türkçe arayüz ve raporlarla HDD/SSD testi için geliştirilen açık kaynak t
 
 **Geliştirme sürümüdür. Ham disk testleri hedef diskin bütün verilerini siler.** Otomatik mod, açılış USB'si dışındaki uygun dahili diskleri sırayla seçer. Birleşik geliştirme imajı oluşturuldu; fiziksel donanım kabulü ve yeni Windows akışının tam kurulum kabulü henüz tamamlanmadı.
 
+## 0.7 güncellemesi — 9 Kasım 2026
+
+Koyu lacivert grafik panel, altı aşamanın tamamını gösteren durum listesi, aktif aşama ve bu diskteki tüm test için ayrı geçen/kalan süreler eklendi. Desteklenen ekranda 1080p tercih edilir; grafik ekran kullanılamazsa büyük yazılı metin görünümü korunur. [0.5/0.6 USB’yi 0.7’ye güncelleme](docs/GUNCELLEME-0.7.md).
+
+169 Windows kaynak testi ve Linux'ta gerçek fio/ilerleme için 13 hedefli kontrol geçti. Gerçek donanımda ekran uyumluluğu ve hızlanma kabulü henüz yapılmadı. [0.7 doğrulama kapsamı](docs/validation-0.7/acceptance.json).
+
+![VEDT 0.7 — sanal testte çalışan koyu ekran](docs/images/VEDT-0.7-koyu-ekran.png)
+
+0.7 USB güncelleme paketinin SHA-256 değeri:
+
+```text
+0431f83e2d8d1eedb1d8d6a72b98e2e31196e2c7b7eb7a248b0f24dbd75d3361  VEDT-0.7-USB-GUNCELLEME.zip
+```
+
 ## 0.6 güncellemesi — 9 Kasım 2026
 
 Yarım kalan işlerde `R` + Enter, ardından `SIL` + Enter ile açık onay vererek baştan test başlatılabilir. Eski raporlar ve numaratör korunur. Tam kapasite yazma, SHA-256 ve iki tam okuma korunarak büyük bloklu sıralı I/O eklendi; son parça ayrıca doğrulanır. [Mevcut USB’yi güncelleme ve süre açıklaması](docs/GUNCELLEME-0.6.md).
@@ -12,7 +26,7 @@ Yarım kalan işlerde `R` + Enter, ardından `SIL` + Enter ile açık onay verer
 
 **[VEDT sürüm ve güncelleme arşivini aç — Google Drive](https://drive.google.com/drive/folders/1jhm70ZRFvDzygHyTDAkBl_MCeJ69FVtC?usp=sharing)**
 
-Birleşik USB imajları, önceki sürümler ve güncelleme paketleri bu klasörde paylaşılır. Yeni USB hazırlamak için istediğiniz sürümün `.img` dosyasını; mevcut 0.5 USB’yi raporları ve numaratörü koruyarak güncellemek için `VEDT-0.6-USB-GUNCELLEME.zip` paketini seçin. Dosyayı bilgisayara indirin; klasörün tamamını indirmeniz gerekmez.
+Birleşik USB imajları, önceki sürümler ve güncelleme paketleri bu klasörde paylaşılır. 0.7 grafik ekran paketi için yayımlandığında `VEDT-0.7-USB-GUNCELLEME.zip` dosyasını seçin; sürümünü kontrol edin. Yeni USB hazırlamak için istediğiniz sürümün `.img` dosyasını; mevcut 0.5 USB’yi raporları ve numaratörü koruyarak güncellemek için `VEDT-0.6-USB-GUNCELLEME.zip` paketini seçin. Dosyayı bilgisayara indirin; klasörün tamamını indirmeniz gerekmez.
 
 0.6 dosyaları için beklenen SHA-256 değerleri:
 

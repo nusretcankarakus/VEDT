@@ -19,6 +19,7 @@ from .engine import DeadlineExceeded
 from .fio import FioError, FioDataMismatch, _stop, parse_result
 from .safety import Authorization, Identity
 from .smart import read_smart
+from .progress import Progress
 
 
 class ThermalLimit(RuntimeError):
@@ -162,6 +163,17 @@ def run_raw(settings, confirmation, reports, event=lambda _: None, *, accept_dat
                                'Test hedefinin tüm verileri silinir.']
     authorization = Authorization(settings.target, settings.allow_destroy)
     temperature_samples = []
+    progress = Progress(settings.target.size_bytes, settings.mixed_operations)
+    stage_started = {}
+
+    def publish(current=None, completed=0, phase=None, **values):
+        now = time.monotonic()
+        state = progress.snapshot(session['stages'], now-started, current, completed,
+            now-stage_started[current] if current in stage_started else 0, phase)
+        event({**values, **state, 'temperature_c': session['temperature_c']})
+        return {key: state[key] for key in ('elapsed_seconds', 'eta_seconds', 'stage_elapsed_seconds', 'stage_eta_seconds',
+            'overall_eta_seconds', 'overall_eta_provisional', 'overall_percent', 'percent')}
+
 
     def check_time():
         if time.monotonic() - started >= settings.timeout_seconds:
@@ -185,6 +197,7 @@ def run_raw(settings, confirmation, reports, event=lambda _: None, *, accept_dat
         return data
 
     try:
+        publish(phase='Aygıt ve sıcaklık kontrolleri', event_kind='begin', mib_per_s=0)
         with PinnedDevice(authorization, laboratory=settings.laboratory) as device:
             session['identity_authorized'] = True
             session['device_path'] = str(device.path)
@@ -194,11 +207,13 @@ def run_raw(settings, confirmation, reports, event=lambda _: None, *, accept_dat
             session['smart_before'] = before
             if settings.idle_observation_seconds and before['temperature_c'] is not None:
                 smart(device, 'boşta')
+                publish(phase='Boşta sıcaklık gözlemi', event_kind='update', mib_per_s=0)
                 idle_end = time.monotonic() + settings.idle_observation_seconds
                 while time.monotonic() < idle_end:
                     check_time()
                     time.sleep(max(0, min(5, idle_end - time.monotonic())))
                     smart(device, 'boşta')
+                    publish(phase='Boşta sıcaklık gözlemi', event_kind='update', mib_per_s=0)
             size = settings.target.size_bytes
             ranges = capacity_ranges(size, device.logical_sector)
             session['capacity_io_ranges'] = ranges
@@ -208,7 +223,8 @@ def run_raw(settings, confirmation, reports, event=lambda _: None, *, accept_dat
                 raise SafetyError('Blok boyutu mantıksal sektörden küçük.')
 
             def stage(name, options, workload_size=size, bs=block, verify_only=False,
-                      require_bytes=None, direction='both', offset=0, row=None, completed_before=0, total_bytes=None, sequential=False):
+                      require_bytes=None, direction='both', offset=0, row=None, completed_before=0, total_bytes=None, sequential=False, final_part=True):
+                stage_started.setdefault(name, time.monotonic())
                 check_time()
                 device.boundary()
                 smart(device, 'aşama öncesi', name)
@@ -224,6 +240,7 @@ def run_raw(settings, confirmation, reports, event=lambda _: None, *, accept_dat
                 last_smart = since - 5
                 process = None
                 stdout = stderr = ''
+                live_count = 0
                 command = [executable, '--name=disktest-raw', f'--filename=/proc/self/fd/{device.fd}',
                            f'--size={workload_size}', f'--offset={offset}', f'--bs={bs}',
                            '--ioengine=libaio' if sequential else '--ioengine=psync',
@@ -232,6 +249,7 @@ def run_raw(settings, confirmation, reports, event=lambda _: None, *, accept_dat
                            '--output-format=json', '--verify_state_save=0', '--verify_state_load=0',
                            '--verify_fatal=1', '--end_fsync=1'] + options
                 try:
+                    publish(name, completed_before, event_kind='begin', mib_per_s=0)
                     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                                text=True, start_new_session=True, pass_fds=(device.fd,))
                     while True:
@@ -247,6 +265,7 @@ def run_raw(settings, confirmation, reports, event=lambda _: None, *, accept_dat
                                 raise SafetyError('Aygıt sayaçları sıfırlandı; kimlik/güncellik belirsiz.')
                             delta = tuple(current[i] - baseline[i] for i in (0, 1))
                             completed = delta[0] if direction == 'read' else delta[1] if direction == 'write' else sum(delta)
+                            live_count = min(completed, require_bytes or workload_size)
                             if current != previous:
                                 last_progress = now
                             if now - last_progress >= settings.stall_seconds:
@@ -261,11 +280,12 @@ def run_raw(settings, confirmation, reports, event=lambda _: None, *, accept_dat
                                       'eta_seconds': max(0, ((require_bytes or workload_size)-completed) * (now-since) / completed) if completed > 0 else None,
                                       'percent': min(100, (completed_before + completed) * 100 / (total_bytes or require_bytes)) if require_bytes else None,
                                       'temperature_c': session['temperature_c']}
+                            sample.update(publish(name, completed_before+live_count, event_kind='update',
+                                                  mib_per_s=speed, source=sample['source']))
                             session['telemetry'].append(sample)
                             if len(session['telemetry']) > 4096:
                                 del session['telemetry'][:1024]
                                 session['telemetry_samples_omitted'] = session.get('telemetry_samples_omitted', 0) + 1024
-                            event(sample)
                             previous, previous_time = current, now
                     result, count = parse_result(stdout, process.returncode, verify_only=verify_only)
                     smart(device, 'aşama sonrası', name)
@@ -277,7 +297,7 @@ def run_raw(settings, confirmation, reports, event=lambda _: None, *, accept_dat
                     job = result['jobs'][0]
                     row['mib_per_s'] = row['bytes'] / 1024**2 / max(row['seconds'] + time.monotonic() - since, 1e-9)
                     device.boundary()
-                    row['status'] = 'PASS'
+                    row['status'] = 'PASS' if final_part else 'RUNNING'
                 except BaseException as exc:
                     if process is not None:
                         try:
@@ -294,7 +314,9 @@ def run_raw(settings, confirmation, reports, event=lambda _: None, *, accept_dat
                             exc.args = (f'Veri uyuşmazlığı: {offset} bayt adresinden başlayan {length} baytlık blok.',)
                     raise
                 finally:
-                    row['seconds'] += time.monotonic() - since
+                    row['seconds'] = time.monotonic() - stage_started[name]
+                    publish(name, max(row['bytes'], completed_before+live_count), event_kind='end',
+                            mib_per_s=row['mib_per_s'])
 
             def capacity_stage(name, options, verify_only=False, direction='read'):
                 row = {'name': name, 'status': 'RUNNING', 'bytes': 0, 'seconds': 0, 'mib_per_s': 0}
@@ -303,7 +325,8 @@ def run_raw(settings, confirmation, reports, event=lambda _: None, *, accept_dat
                     stage(name, options + [f"--verify_interval={part['verify_interval']}"],
                           workload_size=part['size'], bs=part['bs'], offset=part['offset'],
                           verify_only=verify_only, require_bytes=part['size'], direction=direction,
-                          row=row, completed_before=row['bytes'], total_bytes=size, sequential=True)
+                          row=row, completed_before=row['bytes'], total_bytes=size, sequential=True,
+                          final_part=part is ranges[-1])
                 if row['bytes'] != size:
                     raise FioError('Tam kapasite kapsamı eksik.')
 
@@ -339,6 +362,7 @@ def run_raw(settings, confirmation, reports, event=lambda _: None, *, accept_dat
                   workload_size=ranges[0]['size'], require_bytes=mixed_bytes)
             capacity_stage('Karışık test sonrası tam doğrulama', verify, verify_only=True)
             session['full_capacity_verified'] = True
+            publish(phase='Son sağlık kontrolleri', event_kind='begin', mib_per_s=0)
             after = smart(device)
             session['smart_after'] = after
             session['smart_changes'], warnings = smart_delta(before, after)

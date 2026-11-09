@@ -48,6 +48,7 @@ live-config
 systemd-sysv
 python3
 python3-reportlab
+python3-pil
 fio
 smartmontools
 grub-common

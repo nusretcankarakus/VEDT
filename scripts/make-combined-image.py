@@ -95,6 +95,12 @@ if [ "$next_stage" = "windows" ]; then
     chainloader /EFI/Microsoft/Boot/bootmgfw.efi
     boot
 fi
+insmod all_video
+set gfxmode=1920x1080,1280x720,1024x768,auto
+set gfxpayload=keep
+if loadfont /boot/grub/unicode.pf2; then
+    terminal_output gfxterm serial
+fi
 menuentry 'VEDT — Vektron Elektronik Disk Test' {
     linux /live/KERNEL boot=live components locales=tr_TR.UTF-8 keyboard-layouts=tr console=tty1 console=ttyS0,115200 disktest.unattended=1 quiet loglevel=3 systemd.show_status=0
     initrd /live/INITRD

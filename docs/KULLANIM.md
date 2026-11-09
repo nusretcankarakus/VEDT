@@ -1,5 +1,7 @@
 # VEDT kullanım kılavuzu
 
+**0.7 grafik ekran:** Bekleyen altı aşama ve aktif aşama/toplam test süreleri yeni lacivert panelde gösterilir. [0.7 güncelleme yönergesi](GUNCELLEME-0.7.md).
+
 **0.6 güncellemesi:** Yarım kalan testte `R` ve `SIL` onayıyla yeniden test başlatılabilir. Mevcut USB’yi raporları ve numaratörü koruyarak güncellemek için [0.6 yönergesini](GUNCELLEME-0.6.md) okuyun.
 
 Bu belge birleşik geliştirme imajının kullanım akışını anlatır. İmajın kabul durumunu ve SHA-256 özetini beraberindeki build/validation dosyalarından kontrol edin. Fiziksel donanım kabulü tamamlanmış ürün olarak değerlendirmeyin.

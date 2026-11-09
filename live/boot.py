@@ -11,12 +11,20 @@ from disktest.storage import report_store
 
 
 def configure_console():
-    font = Path("/usr/share/consolefonts/Uni2-Terminus16.psf.gz")
+    os.environ.setdefault('VEDT_FRAMEBUFFER', '1')
+    try:
+        width, height = map(int, Path('/sys/class/graphics/fb0/virtual_size').read_text().strip().split(','))
+    except (OSError, ValueError):
+        width, height = 1024, 768
+    name = 'Uni2-Terminus32x16.psf.gz' if width >= 1600 and height >= 900 else 'Uni2-Terminus24x12.psf.gz' if width >= 1024 and height >= 600 else 'Uni2-Terminus16.psf.gz'
+    font = Path('/usr/share/consolefonts') / name
     if not font.is_file():
-        return {"font": None, "returncode": None}
-    subprocess.run(["kbd_mode", "-u", "-C", "/dev/tty1"], check=False)
-    result = subprocess.run(["setfont", "-C", "/dev/tty1", str(font)], check=False)
-    return {"font": str(font), "returncode": result.returncode}
+        font = Path('/usr/share/consolefonts/Uni2-Terminus16.psf.gz')
+    if not font.is_file():
+        return {'font': None, 'returncode': None}
+    subprocess.run(['kbd_mode', '-u', '-C', '/dev/tty1'], check=False)
+    result = subprocess.run(['setfont', '-C', '/dev/tty1', str(font)], check=False)
+    return {'font': str(font), 'returncode': result.returncode, 'display_size': [width, height]}
 
 
 def autotest(console):
@@ -62,6 +70,8 @@ def main():
         if 'disktest.batchcheck=1' not in Path('/proc/cmdline').read_text().split():
             from disktest.combined import run
             if run(store):
+                from disktest.dashboard import wait_for_result
+                wait_for_result()
                 return 0
         from disktest.batch import run_batch
         record = run_batch(store, boot_usb_verified=True)
