@@ -25,6 +25,8 @@ def fixture(tmp_path, *, full=True, bytes_match=True):
     stages = [{'status': 'PASS', 'bytes': identity['size_bytes'] if bytes_match else 1} for _ in range(6)]
     session = {'mode': 'raw-device', 'identity_authorized': True, 'full_capacity_verified': full,
                'status': 'WARNING', 'error': None, 'stages': stages,
+               'smart_before': {'health':'PASS', 'acquisition_ok':True},
+               'smart_after': {'health':'PASS', 'acquisition_ok':True},
                'target': {'identity': identity, 'bytes': identity['size_bytes']}}
     (folder / 'session.json').write_text(json.dumps(session))
     (folder / 'report.html').write_text('UNIT TEST STUB')

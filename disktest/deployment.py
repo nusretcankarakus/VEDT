@@ -11,8 +11,11 @@ def prepare_plan(reports, batch):
     for row in batch['results']:
         target = identities[row['serial']]
         folder = reports / row['report']
-        if target['size_bytes'] < 64 * 1024**3 or not row.get('windows_eligible_test_result') or verify_manifest(folder):
-            skipped.append({'serial': target['serial'], 'reason': 'Windows için tam başarılı test ve en az 64 GiB gerekli.'})
+        from .installation_policy import installation_decision
+        session = json.loads((folder / 'session.json').read_text(encoding='utf-8'))
+        decision = installation_decision(session)
+        if not decision['eligible'] or target['size_bytes'] < 64 * 1024**3 or not row.get('windows_eligible_test_result') or verify_manifest(folder):
+            skipped.append({'serial': target['serial'], 'reason': 'Windows için en az 64 GiB, tam başarılı test ve uygun SMART gerekli. ' + ' '.join(decision['reasons'])})
             continue
         targets.append({'identity': target, 'test_report': row['report'],
                         'manifest_sha256': digest(folder / 'manifest.json'),
@@ -29,4 +32,25 @@ def prepare_plan(reports, batch):
                              'Kurulumdan hemen önce tam hedef kimliğinin yeniden doğrulanması'],
             'note': 'Bu dosya kurulum komutu değildir. Windows veya masaüstü kopyası henüz oluşturulmadı.'}
     (reports / 'windows-hazirlik.json').write_text(json.dumps(plan, ensure_ascii=False, indent=2), encoding='utf-8')
+    return plan
+
+
+def validate_installation_targets(job):
+    """Recheck persistent jobs with current rules before rebooting to older WinPE."""
+    from .installation_policy import installation_decision
+    job = Path(job)
+    plan = json.loads((job / 'windows-hazirlik.json').read_text(encoding='utf-8'))
+    if not plan.get('targets'):
+        raise ValueError('Windows hedefi bulunamadı.')
+    for item in plan['targets']:
+        import re
+        name = item.get('test_report', '')
+        if not re.fullmatch('[0-9a-f]{24}', name):raise ValueError('Windows rapor yolu geçersiz.')
+        folder = job / name
+        if folder.is_symlink() or verify_manifest(folder) or digest(folder / 'manifest.json') != item.get('manifest_sha256'):
+            raise ValueError('Windows rapor bütünlüğü doğrulanamadı.')
+        session = json.loads((folder / 'session.json').read_text(encoding='utf-8'))
+        decision = installation_decision(session)
+        if not decision['eligible'] or session.get('target', {}).get('identity') != item.get('identity'):
+            raise ValueError('Windows kurulmayacak: ' + ' '.join(decision['reasons']))
     return plan

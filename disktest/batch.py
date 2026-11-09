@@ -69,6 +69,10 @@ def checkpoint(reports, record):
         '<h1>VEDT — Toplu test sonucu</h1><table><tr><th>Seri numarası</th><th>Test sonucu</th>'
         '<th>USB raporu</th><th>Hedefteki rapor</th></tr>' + rows + '</table><h2>Korunan / atlanan aygıtlar</h2>' +
         '<ul>' + skipped + '</ul></html>', encoding='utf-8')
+    from .archive import build_index
+    build_index(reports)
+    if reports.parent.name == 'jobs':
+        build_index(reports.parent.parent)
     os.sync()
 
 
@@ -102,9 +106,10 @@ def run_batch(reports, *, boot_usb_verified=False, numbering_reports=None):
         os.sync()
         row = {'serial': target.serial, 'status': session['status'], 'report': directory.name,
                'full_capacity_verified': session['full_capacity_verified'], 'account_name': session['account_name'], 'report_file_stem': report_stem(session)}
-        row['windows_eligible_test_result'] = (session.get('full_capacity_verified') is True and
-            not session.get('error') and len(session['stages']) == 6 and
-            all(stage['status'] == 'PASS' for stage in session['stages']))
+        from .installation_policy import installation_decision
+        decision = installation_decision(session)
+        row['windows_eligible_test_result'] = decision['eligible']
+        row['installation_decision'] = decision
         row['target_copy'] = {'verified': False, 'state': 'windows-pending' if row['windows_eligible_test_result'] else 'not-eligible'}
         record['results'].append(row)
         checkpoint(reports, record)

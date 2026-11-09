@@ -119,7 +119,7 @@ def smart_delta(before, after):
                 for row in raw.get('ata_smart_attributes', {}).get('table', []) if 'id' in row}
     old_ata = ata(before.get('raw', {}))
     new_ata = ata(after.get('raw', {}))
-    for code in (5, 187, 188, 197, 198):
+    for code in (5, 187, 188, 196, 197, 198, 199):
         old, new = old_ata.get(code), new_ata.get(code)
         if type(old) is int and type(new) is int:
             changes[f'ata_{code}'] = {'before': old, 'after': new, 'delta': new - old}
@@ -186,6 +186,8 @@ def run_raw(settings, confirmation, reports, event=lambda _: None, *, accept_dat
         except (ValueError, RuntimeError, OSError, subprocess.SubprocessError) as exc:
             data = {'health': 'UNKNOWN', 'temperature_c': None, 'acquisition_ok': False,
                     'raw': {}, 'messages': [str(exc)]}
+        if phase == 'kontrol':
+            session['smart_after' if session.get('smart_before') else 'smart_before'] = data
         value = data['temperature_c']
         session['temperature_c'] = value
         temperature_samples.append({'elapsed_seconds': round(time.monotonic() - started, 3),
@@ -205,6 +207,8 @@ def run_raw(settings, confirmation, reports, event=lambda _: None, *, accept_dat
             session['native_ids'] = device.native_ids()
             before = smart(device)
             session['smart_before'] = before
+            from .connection import connection_info
+            session['connection'] = connection_info(device.path, before)
             if settings.idle_observation_seconds and before['temperature_c'] is not None:
                 smart(device, 'boşta')
                 publish(phase='Boşta sıcaklık gözlemi', event_kind='update', mib_per_s=0)
@@ -284,8 +288,8 @@ def run_raw(settings, confirmation, reports, event=lambda _: None, *, accept_dat
                                                   mib_per_s=speed, source=sample['source']))
                             session['telemetry'].append(sample)
                             if len(session['telemetry']) > 4096:
-                                del session['telemetry'][:1024]
-                                session['telemetry_samples_omitted'] = session.get('telemetry_samples_omitted', 0) + 1024
+                                session['telemetry'] = session['telemetry'][::2] + session['telemetry'][-1:]
+                                session['telemetry_downsampled'] = True
                             previous, previous_time = current, now
                     result, count = parse_result(stdout, process.returncode, verify_only=verify_only)
                     smart(device, 'aşama sonrası', name)
@@ -383,5 +387,7 @@ def run_raw(settings, confirmation, reports, event=lambda _: None, *, accept_dat
     from .temperature import summarize
     session['temperature_samples'] = temperature_samples
     session['temperature_summary'] = summarize(temperature_samples)
+    from .installation_policy import installation_decision
+    session['installation_decision'] = installation_decision(session)
     session['finished_at'] = datetime.now(timezone.utc).isoformat()
     return session

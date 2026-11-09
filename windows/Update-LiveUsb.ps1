@@ -17,7 +17,7 @@ if ($hasGrub) {
     $grubSource = Join-Path $PackageRoot 'grub.cfg'
     if ((Hash $grubSource) -ne $manifest.grub_new_sha256) { throw 'Paketin acilis ayari bozuk.' }
 }
-Write-Host 'VEDT 0.7 - USB guncellemesi' -ForegroundColor Cyan
+Write-Host 'VEDT 0.8 - USB guncellemesi' -ForegroundColor Cyan
 Write-Host 'Raporlar, numarator ve Windows dosyalari korunur.'
 Get-Volume | Where-Object FileSystemLabel -eq 'DTLIVE' | Format-Table DriveLetter,FileSystemLabel,SizeRemaining
 if (-not $DriveLetter) { $DriveLetter = Read-Host 'DTLIVE bolumunun harfini yazin (ornek E)' }
@@ -31,7 +31,7 @@ $root = $DriveLetter + ':\'
 $target = Join-Path $root 'live\filesystem.squashfs'
 $checksums = Join-Path $root 'sha256sum.txt'
 $oldHash = Hash $target
-if ($oldHash -notin $allowed) { throw 'Bu USB desteklenen VEDT 0.5/0.6 surumu degil. USB degistirilmedi.' }
+if ($oldHash -notin $allowed) { throw 'Bu USB desteklenen VEDT 0.5/0.6/0.7 surumu degil. USB degistirilmedi.' }
 $originalChecksums = [IO.File]::ReadAllText($checksums, [Text.Encoding]::UTF8)
 $pattern = '(?m)^([a-f0-9]{64})  \./live/filesystem\.squashfs\r?$'
 $rootMatches = [regex]::Matches($originalChecksums, $pattern)

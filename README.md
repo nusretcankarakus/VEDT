@@ -4,6 +4,14 @@ Türkçe arayüz ve raporlarla HDD/SSD testi için geliştirilen açık kaynak t
 
 **Geliştirme sürümüdür. Ham disk testleri hedef diskin bütün verilerini siler.** Otomatik mod, açılış USB'si dışındaki uygun dahili diskleri sırayla seçer. Birleşik geliştirme imajı oluşturuldu; fiziksel donanım kabulü ve yeni Windows akışının tam kurulum kabulü henüz tamamlanmadı.
 
+## 0.8 güncellemesi — 9 Kasım 2026
+
+Hız ve sıcaklık grafikleri, SMART önce/sonra tablosu, sıkı Windows sağlık kapısı, çevrimdışı aranabilir USB rapor arşivi ve disk bağlantı bilgileri eklendi. [Güncelleme ve kullanım](docs/GUNCELLEME-0.8.md). Mevcut 0.5/0.6/0.7 USB doğrudan güncellenebilir; raporlar ve numaratör korunur. `VEDT-0.8-USB-GUNCELLEME.zip` paketi Drive arşivine yüklendiğinde aynı indirme klasöründen erişilebilir.
+
+183 kaynak testi geçti; PDF grafik ve tabloları görsel olarak incelendi. [0.8 doğrulama kapsamı](docs/validation-0.8/acceptance.json).
+
+0.8 USB güncelleme paketi SHA-256: `141cce93f0509aff94713b15a3b9d61979f958b5ca4965879bcef5750db76fbb`.
+
 ## 0.7 güncellemesi — 9 Kasım 2026
 
 Koyu lacivert grafik panel, altı aşamanın tamamını gösteren durum listesi, aktif aşama ve bu diskteki tüm test için ayrı geçen/kalan süreler eklendi. Desteklenen ekranda 1080p tercih edilir; grafik ekran kullanılamazsa büyük yazılı metin görünümü korunur. [0.5/0.6 USB’yi 0.7’ye güncelleme](docs/GUNCELLEME-0.7.md).

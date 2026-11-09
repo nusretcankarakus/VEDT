@@ -1,3 +1,5 @@
+[0.8 grafik, SMART ve rapor arşivi güncellemesi](GUNCELLEME-0.8.md)
+
 # VEDT kullanım kılavuzu
 
 **0.7 grafik ekran:** Bekleyen altı aşama ve aktif aşama/toplam test süreleri yeni lacivert panelde gösterilir. [0.7 güncelleme yönergesi](GUNCELLEME-0.7.md).

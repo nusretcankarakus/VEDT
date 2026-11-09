@@ -85,6 +85,8 @@ def prepare(iso_path, python_embed, wimlib, output):
     for path in source.iterdir():
         if path.suffix in {'.py', '.cmd', '.ps1'} and path.name != 'lab_install.py':
             shutil.copyfile(path, app / path.name)
+    for name in ('installation_policy.py', 'health.py'):
+        shutil.copyfile(source.parent / 'disktest' / name, app / name)
     (app / 'install.cmd').write_bytes(b'@echo off\r\nchcp 65001 >nul\r\nX:\\DiskTest86\\python\\python.exe -I X:\\DiskTest86\\install.py\r\nwpeutil shutdown\r\n')
     ini = injection / 'winpeshl.ini'
     ini.write_bytes(b'[LaunchApps]\r\n%SYSTEMROOT%\\System32\\wpeinit.exe\r\n%SYSTEMROOT%\\System32\\cmd.exe, /c X:\\DiskTest86\\install.cmd\r\n')

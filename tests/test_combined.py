@@ -27,6 +27,8 @@ def test_interrupted_job_never_repeats_destructive_tests(tmp_path, monkeypatch):
 
 
 def test_ready_job_goes_to_winpe_without_retesting(tmp_path, monkeypatch):
+    from disktest import deployment
+    monkeypatch.setattr(deployment, 'validate_installation_targets', lambda job: {})
     reports = media(tmp_path)
     active(tmp_path, 'windows-ready')
     monkeypatch.setattr(combined, 'machine_id', lambda: 'machine')

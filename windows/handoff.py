@@ -74,6 +74,13 @@ def verified_report(root, item):
     critical = {'media_errors', 'critical_warning', 'ata_5', 'ata_187', 'ata_188', 'ata_197', 'ata_198'}
     if any(value.get('delta', 0) > 0 for key, value in session.get('smart_changes', {}).items() if key in critical):
         raise ValueError('Kritik aygıt hata sayacı yükselmiş.')
+    try:
+        from installation_policy import installation_decision
+    except ImportError:
+        from disktest.installation_policy import installation_decision
+    decision = installation_decision(session)
+    if not decision['eligible']:
+        raise ValueError('Windows sağlık kapısı: ' + ' '.join(decision['reasons']))
     return session, folder
 
 

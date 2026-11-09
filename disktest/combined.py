@@ -140,6 +140,8 @@ def run(reports):
                     print('Yarım Windows işi korunuyor; yeniden silme yapılmadı.', flush=True)
                     return True
             else:
+                from .deployment import validate_installation_targets
+                validate_installation_targets(job)
                 next_boot('winpe')
                 return True
         elif active.get('phase') == 'finished-no-windows':
@@ -167,6 +169,8 @@ def run(reports):
         save(plan_path, plan)
         active['phase'] = 'windows-ready'
         save(active_path, active)
+        from .deployment import validate_installation_targets
+        validate_installation_targets(job)
         next_boot('winpe')
     else:
         active['phase'] = 'finished-no-windows'

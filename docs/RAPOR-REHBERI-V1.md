@@ -47,3 +47,13 @@ Test başarısı Windows'un kurulduğu, ilk oturumun açıldığı veya hedef ra
 
 
 Raporun sonundaki “Yapay zekâ ile yorumla — hazır metin” alıntısı sonuç verisini de içerir. Bölümü tamamen kopyalayıp yapıştırabilirsiniz; dış hizmetin internete erişmesi garanti değildir. Windows oturum/masaüstü klasör adı `VEDT54`, dosya adı `VEDT54_SERI-NUMARASI.pdf` biçimindedir. Dosya adı için seri güvenli biçime çevrilir/kısaltılır, rapor içindeki tam seri değişmez.
+
+
+## 0.8 ek alanları ve grafikler
+
+- `speed.png` ve `temperature.png`, PDF ve HTML içinde gösterilen çevrimdışı grafiklerdir. Klasörün tamamı birlikte taşınmalıdır. Hız MiB/sn, sıcaklık °C, yatay eksen test başlangıcından itibaren dakikadır. Sensör/ölçüm yoksa değer üretilmez. Hız Linux tamamlanan aygıt I/O sayaçlarından gelir; diğer aygıt erişimleri etkileyebilir.
+- Kırmızı hız alanı, aynı aşamada sık örneklerde en az 5 saniye sıfır I/O dizisini gösterir. Bu gözlem tek başına arıza kanıtı değildir. Seyreltilen örnekler ve ölçüm boşlukları kısa olayları saklayabilir; “duraklama görülmedi” donma olmadığını kanıtlamaz.
+- SMART tablosundaki eksik değer sıfır değildir. Sayaç artışı yeni olay gösterebilir; azalış sıfırlama/erişim/farklı yorum nedeniyle incelenmelidir. `critical_warning` bir bit maskesidir; aritmetik farkı hata adedi sayılmaz. ATA ham değerler üreticiye özgüdür. CRC hatası kablo/bağlantı yoluyla ilgili olabilir; tek başına disk yüzeyi arızası denemez.
+- `connection`: SMART SATA etkin/en yüksek arayüz hızı ve Linux sysfs’ten en yakın PCIe denetleyicisinin etkin/en yüksek hız/hat sayısı. Geçersiz/bilinmeyen PCIe değerleri gösterilmez. Birim GT/s, Gb/s ve MiB/sn aynı şey değildir. Köprü/RAID ve güç yönetimi nedeniyle düşük bağlantı değeri tek başına arıza teşhisi değildir.
+- `installation_decision`: `eligible` yalnız otomatik Windows için disk testi kapısıdır. Tamamlanmış ve tam bayt kapsamı doğrulanmış altı aşama, en az 64 GiB, doğrulanmış aygıt kimliği, başlangıç/bitişte okunabilen başarılı SMART ve uygun sayaçlar gerekir. Genel geliştirme uyarısı tek başına engel değildir; eksik/uyarılı SMART, sayaç değişimi veya mevcut kritik hata otomatik kurulumu engeller. `reasons` gerçek nedenleri içerir; `eligible=true` Windows’un kurulduğunu veya ilk oturumun tamamlandığını göstermez.
+- `reports/index.html` tüm USB işlerinin çevrimdışı indeksidir. Müşteri/test numarası VEDT numaratörüdür; müşterinin kişisel kimliği değildir. Zamanlar UTC’dir. Eski raporlar yeniden yorumlanmaz/değiştirilmez.

@@ -1,3 +1,6 @@
+## 0.8 — 9 Kasım 2026
+Grafikler, sağlık karşılaştırması, Windows disk sağlık kapısı, tüm USB rapor arşivi ve bağlantı bilgisi eklendi. Ayrıntılar: [0.8](GUNCELLEME-0.8.md). Fiziksel ve Windows ilk oturum kabulü sürüyor.
+
 # 0.7 — grafik ekran ve altı aşama süreleri / 9 Kasım 2026
 
 [0.7 değişiklikleri ve kurulum](GUNCELLEME-0.7.md) · [Doğrulama kaydı](validation-0.7/acceptance.json). Tam kapasite ve Windows kabul koşulları korunur. Fiziksel ekran/USB, yeni Windows ilk oturum ve Secure Boot kabulü tamamlanmadı.

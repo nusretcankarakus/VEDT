@@ -1,0 +1,116 @@
+{
+  "version": "0.8.0.dev0",
+  "date": "2026-11-09",
+  "source_checks": {
+    "windows_passed": 183,
+    "windows_skipped_linux_only": 8,
+    "linux_targeted_final_passed": 22,
+    "linux_skipped_windows_only": 3,
+    "earlier_same_io_real_fio_regular_file_cases_passed": 4
+  },
+  "pdf_review": {
+    "rendered": true,
+    "no_blank_pages": true,
+    "charts_and_smart_table_visually_reviewed": true,
+    "preview_uses_existing_QEMU_data": true
+  },
+  "installation_policy": "complete-test-clean-smart-v1",
+  "physical_hardware_tested": false,
+  "Windows_first_logon_tested": false,
+  "existing_Windows_WIM_modified": false,
+  "not_accepted": [
+    "Physical USB/display compatibility",
+    "Secure Boot",
+    "Full Windows first logon; prior AppXSvc issues remain"
+  ],
+  "root_sha256": "b32d87d2fb1e7a78a9d43864bc46b9a494d56023dde2251593566be741496ee5",
+  "artifact": {
+    "file": "VEDT-0.8-USB-GUNCELLEME.zip",
+    "bytes": 891558178,
+    "sha256": "141cce93f0509aff94713b15a3b9d61979f958b5ca4965879bcef5750db76fbb",
+    "root_sha256": "b32d87d2fb1e7a78a9d43864bc46b9a494d56023dde2251593566be741496ee5",
+    "zip_crc_and_embedded_root_grub_verified": true,
+    "accepted_base_versions": [
+      "0.5",
+      "0.6",
+      "0.7"
+    ],
+    "Drive_uploaded": false
+  },
+  "native_vm_before_link_value_normalization": {
+    "root_sha256": "7bf54982c5fad83d69d5cd0ac9f2ede4e5a1d369234cc75be2441d76ecfcd3a8",
+    "reports": [
+      {
+        "account": "VEDT5",
+        "serial": "VEDT-QA-NVME",
+        "bytes": 67112960,
+        "six_stages_passed": true,
+        "report_manifest_verified": true,
+        "charts_generated": true,
+        "connection": {
+          "protocol": "NVMe",
+          "sata_current": null,
+          "sata_maximum": null,
+          "pcie_current_speed": "Unknown",
+          "pcie_current_width": "0",
+          "pcie_maximum_speed": "Unknown",
+          "pcie_maximum_width": "255",
+          "source": "smartctl / Linux sysfs (salt okunur)",
+          "note": "Bağlantı hızı gerçek disk aktarım hızı değildir. PCIe bilgisi en yakın denetleyiciye aittir; RAID/köprü arkasındaki diski tek başına tanımlamaz.",
+          "pcie_controller": "0000:00:03.0"
+        },
+        "installation_decision": {
+          "eligible": false,
+          "policy": "complete-test-clean-smart-v1",
+          "reasons": [
+            "Windows hedefi en az 64 GiB olmalı."
+          ],
+          "note": "Bu karar yalnız disk testi kapısıdır; Windows donanım uygunluğunu veya kurulumu tamamlandığını göstermez."
+        }
+      },
+      {
+        "account": "VEDT6",
+        "serial": "VEDT-QA-SATA",
+        "bytes": 67109376,
+        "six_stages_passed": true,
+        "report_manifest_verified": true,
+        "charts_generated": true,
+        "connection": {
+          "protocol": "ATA",
+          "sata_current": null,
+          "sata_maximum": null,
+          "pcie_current_speed": null,
+          "pcie_current_width": null,
+          "pcie_maximum_speed": null,
+          "pcie_maximum_width": null,
+          "source": "smartctl / Linux sysfs (salt okunur)",
+          "note": "Bağlantı hızı gerçek disk aktarım hızı değildir. PCIe bilgisi en yakın denetleyiciye aittir; RAID/köprü arkasındaki diski tek başına tanımlamaz.",
+          "pcie_controller": "0000:00:02.0"
+        },
+        "installation_decision": {
+          "eligible": false,
+          "policy": "complete-test-clean-smart-v1",
+          "reasons": [
+            "Windows hedefi en az 64 GiB olmalı."
+          ],
+          "note": "Bu karar yalnız disk testi kapısıdır; Windows donanım uygunluğunu veya kurulumu tamamlandığını göstermez."
+        }
+      }
+    ],
+    "usb_archive_includes_previous_jobs": true,
+    "report_count": 6,
+    "physical_hardware_tested": false,
+    "windows_installation_tested": false,
+    "fat_reader_dirty_flag_warning": true,
+    "final_result_panel_persistence_observed": true,
+    "shutdown": "Ctrl+Alt+Delete requested after completion; QEMU exited"
+  },
+  "final_metadata_patch": {
+    "purpose": "Reject unknown speed and invalid PCIe width 0/255 rather than present misleading link values",
+    "linux_targeted_passed": 22,
+    "io_workload_changed": false,
+    "native_boot_repeated_after_metadata_patch": false,
+    "connection_source_sha256": "ce53989e115705b2c9b5f2fa330afb75e0f37e5416eb131a80a6c5f5a838ccdf"
+  },
+  "old_report_files_unchanged": 16
+}

@@ -7,7 +7,7 @@ def ai_prompt(session):
     """Self-contained quoted request; do not include customer identifiers."""
     data = {key: session.get(key) for key in ('version', 'mode', 'status', 'error',
         'warnings', 'full_capacity_verified', 'elapsed_seconds', 'temperature_summary',
-        'smart_changes', 'physical_hardware_tested')}
+        'smart_changes', 'connection', 'installation_decision', 'physical_hardware_tested')}
     data['model'] = session.get('target', {}).get('identity', {}).get('model')
     data['capacity_bytes'] = session.get('target', {}).get('bytes')
     data['stages'] = [{k: stage.get(k) for k in ('name', 'status', 'bytes', 'seconds', 'mib_per_s')}
@@ -54,6 +54,14 @@ def sections(session):
                            f"en yüksek {number(item.get('maximum_c'), ' °C')} "
                            f"({item.get('count', 0)} geçerli ölçüm)")
     summary.append(('Sıcaklık özeti', simple_temp))
+    from .installation_policy import installation_decision
+    decision = installation_decision(session)
+    summary.append(('Windows kurulum kararı', [('Disk testi kapısı: Uygun' if decision['eligible'] else 'Disk testi kapısı: Windows kurulmayacak')] + decision['reasons'] + [decision['note']]))
+    summary.append(('Test kapsamı ve sınırları', [
+        'Tam kapasite doğrulandı.' if session.get('full_capacity_verified') else 'Tam kapasite doğrulaması tamamlanmadı; diskin bütün kapasitesi için sonuç verilemez.',
+        'Başarılı test gelecekte arıza olmayacağı garantisi değildir. Bu test veri kurtarma veya üretici sertifikası değildir.',
+        'Grafikler kaydedilmiş örnekleri gösterir; kısa aralıkta kalan olaylar görünmeyebilir. Sıcaklık sensörü desteklenmiyorsa değer üretilemez.'
+    ]))
     summary.append(('Raporu anlamak için', [
         'VEDT — Vektron Elektronik Disk Test açık kaynak projesi: ' + PROJECT_URL,
         'Türkçe rapor okuma kılavuzu: ' + REPORT_GUIDE,
@@ -85,6 +93,22 @@ def sections(session):
                  'ata_197': 'Bekleyen sektör', 'ata_198': 'Düzeltilemeyen sektör'}.get(key, key)
         smart_lines.append(f"{label}: önce {data['before']}, sonra {data['after']}, değişim {data['delta']}")
     details.append(('Aygıt sağlık bilgileri (SMART)', smart_lines))
+    link = session.get('connection', {})
+    details.append(('Disk bağlantısı', [
+        'Protokol: ' + str(link.get('protocol') or 'Bilgi alınamadı'),
+        'SATA: etkin ' + str(link.get('sata_current') or 'Bilgi alınamadı') + ' / desteklenen en yüksek ' + str(link.get('sata_maximum') or 'Bilgi alınamadı'),
+        'PCIe denetleyicisi: ' + str(link.get('pcie_controller') or 'Bilgi alınamadı'),
+        'PCIe etkin: ' + str(link.get('pcie_current_speed') or 'Bilgi alınamadı') + ' / hat sayısı ' + str(link.get('pcie_current_width') or 'Bilgi alınamadı'),
+        'PCIe desteklenen: ' + str(link.get('pcie_maximum_speed') or 'Bilgi alınamadı') + ' / hat sayısı ' + str(link.get('pcie_maximum_width') or 'Bilgi alınamadı'),
+        link.get('note', 'Bağlantı hızı ölçülmüş aktarım hızı değildir. Eksik bilgi arıza anlamına gelmez.')
+    ]))
+    from .charts import pauses
+    events = pauses(session)
+    details.append(('Kaydedilen I/O duraklamaları', [f"{x['stage']}: {x['start_seconds']:.1f}. saniyeden itibaren yaklaşık {x['seconds']:.1f} saniye sıfır tamamlanan I/O hızı." for x in events] or [
+        'Sık örneklerde en az 5 saniyelik sıfır hız dizisi görülmedi. Bu, bütün kısa duraklamaların dışlandığı anlamına gelmez.'
+    ]))
+    if session.get('telemetry_downsampled') or session.get('telemetry_samples_omitted'):
+        details.append(('Grafik örnekleme kapsamı', ['Uzun testte hız kayıtları seyreltilmiştir veya eski kayıtta örnekler eksiktir. Grafik her anı temsil etmez; boşluklar arasında hız varsayılmaz.']))
     details.append(('Hata incelemesi', [error_text(session)]))
     details.append(('Notlar', session.get('warnings', []) + [
         temperatures.get('method', 'Sıcaklık sensörü bilgisi alınamamış olabilir.'),
@@ -105,3 +129,10 @@ def temperature_rows(session):
     return [['Test aşaması', 'Ölçüm', 'En düşük °C', 'Ortalama °C', 'En yüksek °C']] + [
         [name, str(data['count']), number(data['minimum_c']), number(data['average_c']), number(data['maximum_c'])]
         for name, data in session.get('temperature_summary', {}).get('stages', {}).items()]
+
+
+def smart_rows(session):
+    from .health import comparison_rows
+    def value(x):return 'Ölçülemedi' if x is None else str(x)
+    return [['SMART göstergesi', 'Önce', 'Sonra', 'Değişim', 'Yorum']] + [
+        [r['label'], value(r['before']), value(r['after']), value(r['delta']), r['state']] for r in comparison_rows(session)]

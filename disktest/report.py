@@ -6,7 +6,7 @@ import json
 import os
 import re
 from pathlib import Path
-from .report_content import sections, stage_rows, temperature_rows, ai_prompt
+from .report_content import sections, stage_rows, temperature_rows, ai_prompt, smart_rows
 from .naming import report_stem
 from .project import references, PROJECT_URL, REPORT_GUIDE, AI_GUIDE
 
@@ -40,6 +40,8 @@ def verify_manifest(directory):
 
 def write_report(session, output, with_pdf=True):
     session = dict(session)
+    from .installation_policy import installation_decision
+    session['installation_decision'] = installation_decision(session)
     session['documentation'] = references(session['version'])
     account = session.get('account_name')
     if account is not None and (not isinstance(account, str) or not re.fullmatch(r'VEDT[1-9][0-9]{0,14}', account)):
@@ -59,6 +61,9 @@ def write_report(session, output, with_pdf=True):
                        for title, lines in items)
     def table(rows):
         return '<table>' + ''.join('<tr>' + ''.join(f'<td>{escape(str(c))}</td>' for c in r) + '</tr>' for r in rows) + '</table>'
+    from .charts import render_chart
+    for kind in ('speed', 'temperature'):
+        render_chart(session, kind, directory / (kind + '.png'))
     logo = base64.b64encode((Path(__file__).parent / 'assets/vektron-logo.png').read_bytes()).decode('ascii')
     html = ('<!doctype html><html lang="tr"><meta charset="utf-8"><title>VEDT test raporu</title>'
             '<meta name="viewport" content="width=device-width,initial-scale=1">'
@@ -72,6 +77,9 @@ def write_report(session, output, with_pdf=True):
             '<section class="technical"><h1>Ayrıntılı teknik rapor</h1>' + paragraphs(details[:1]) +
             '<h2>Aşama sonuçları ve ölçümler</h2>' + table(stage_rows(session)) +
             '<h2>Aşamalara göre sıcaklık ölçümleri</h2>' + table(temperature_rows(session)) +
+            '<h2>Hız ve sıcaklık grafikleri</h2><img style="width:100%" alt="Disk hız grafiği" src="speed.png"><img style="width:100%" alt="Sıcaklık grafiği" src="temperature.png">' +
+            '<h2>SMART önce / sonra karşılaştırması</h2>' + table(smart_rows(session)) +
+            '<p>ATA ham sayaçlarının anlamı üreticiye göre değişebilir. Ölçülemedi, sıfır demek değildir; arayüz CRC hatası tek başına medya arızası kanıtı değildir.</p>' +
             paragraphs(details[1:]) + '</section><h2>Proje ve rapor okuma kılavuzu</h2>' +
             ''.join('<p><a href="' + escape(url, quote=True) + '">' + escape(label) + '</a></p>'
                     for label, url in [('VEDT açık kaynak projesi', PROJECT_URL),
@@ -132,7 +140,7 @@ def _pdf(session, path):
         item.setStyle(TableStyle([('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#dcebf7')),
             ('VALIGN', (0, 0), (-1, -1), 'TOP'), ('GRID', (0, 0), (-1, -1), 0.3, colors.HexColor('#cbd9e5')),
             ('TOPPADDING', (0, 0), (-1, -1), 7), ('BOTTOMPADDING', (0, 0), (-1, -1), 7)]))
-        story.extend([item, Spacer(1, 12)])
+        story.append(item)
     paragraphs(summary)
     story.extend([PageBreak(), Paragraph('Ayrıntılı teknik rapor', styles['Title'])])
     paragraphs(details[:1])
@@ -140,6 +148,12 @@ def _pdf(session, path):
     table(stage_rows(session), [185, 80, 75, 65, 90])
     story.append(Paragraph('Aşamalara göre sıcaklık ölçümleri', styles['Heading2']))
     table(temperature_rows(session), [185, 50, 85, 90, 85])
+    story.extend([PageBreak(), Paragraph('Hız ve sıcaklık grafikleri', styles['Heading1'])])
+    for name in ('speed', 'temperature'):
+        story.extend([Image(str(path.parent / (name + '.png')), width=495, height=198), Spacer(1, 16)])
+    story.extend([PageBreak(), Paragraph('SMART önce / sonra karşılaştırması', styles['Heading1'])])
+    table(smart_rows(session), [145, 70, 70, 70, 140])
+    story.append(Paragraph('ATA ham sayaçları üreticiye göre değişebilir. Ölçülemedi sıfır demek değildir. CRC hatası tek başına medya arızası kanıtı değildir.', styles['Normal']))
     paragraphs(details[1:])
     story.append(Paragraph('Proje ve rapor okuma kılavuzu', styles['Heading2']))
     for label, url in [('VEDT açık kaynak projesi', PROJECT_URL),
