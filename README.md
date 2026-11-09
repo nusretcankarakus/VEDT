@@ -8,19 +8,22 @@ Türkçe arayüz ve raporlarla HDD/SSD testi için geliştirilen açık kaynak t
 
 Yarım kalan işlerde `R` + Enter, ardından `SIL` + Enter ile açık onay vererek baştan test başlatılabilir. Eski raporlar ve numaratör korunur. Tam kapasite yazma, SHA-256 ve iki tam okuma korunarak büyük bloklu sıralı I/O eklendi; son parça ayrıca doğrulanır. [Mevcut USB’yi güncelleme ve süre açıklaması](docs/GUNCELLEME-0.6.md).
 
-**Aşağıdaki Google Drive bağlantısı önceki 0.5 imajınadır; 0.6 düzeltmelerini içermez. Yeni imaj/güncelleme paketinin indirme bağlantısı henüz eklenmedi.**
+## İndirmeler — tüm sürümler ve güncellemeler
 
-## USB imajını indir — önceki 0.5
+**[VEDT sürüm ve güncelleme arşivini aç — Google Drive](https://drive.google.com/drive/folders/1jhm70ZRFvDzygHyTDAkBl_MCeJ69FVtC?usp=sharing)**
 
-**[VEDT birleşik USB imajını indir — Google Drive](https://drive.google.com/file/d/1NOxrlyXA1J8_HA6QbCUYt4iy1yqf5YO3/view?usp=sharing)**
+Birleşik USB imajları, önceki sürümler ve güncelleme paketleri bu klasörde paylaşılır. Yeni USB hazırlamak için istediğiniz sürümün `.img` dosyasını; mevcut 0.5 USB’yi raporları ve numaratörü koruyarak güncellemek için `VEDT-0.6-USB-GUNCELLEME.zip` paketini seçin. Dosyayı bilgisayara indirin; klasörün tamamını indirmeniz gerekmez.
 
-Geliştirme adayı: `VEDT-combined-0.5-dev.img` · 13.692.305.408 bayt (yaklaşık 13,7 GB). Drive sayfasındaki **İndir** düğmesini kullanın. Bağlantı proje sahibi tarafından sağlanmıştır; Drive dosyasının içeriği ayrıca doğrulanmamıştır. İndirdiğiniz dosyanın SHA-256 değeri aşağıdakiyle eşleşmelidir:
+0.6 dosyaları için beklenen SHA-256 değerleri:
 
 ```text
-e21151d8259dd80c67dc1b7c5332e55987fec20115166277ab4c1133bd2aa9ff
+533e5bfd5da7cbbab4f80baa272953bb56f68aba49d15cc74b81bff6126107d9  VEDT-combined-0.6-dev.img
+8ff7b291d9138124bd99201160631ce8fefe7c9e3156d06f90b98e51a941db79  VEDT-0.6-USB-GUNCELLEME.zip
 ```
 
-**Uygun dahili disklerin bütün verileri silinir.** Yeni Windows ilk oturumu, fiziksel donanım ve Secure Boot kabulü tamamlanmadı. [USB'ye yazma ve kullanım](docs/KULLANIM.md) · [Doğrulama kaydı](docs/validation-0.5/acceptance.json).
+Her sürümün kendi dosya adı ve SHA-256 kaydını esas alın; farklı sürümlerin özetleri birbirinin yerine kullanılamaz. [0.6 güncelleme adımları](docs/GUNCELLEME-0.6.md) · [USB hazırlama ve kullanım](docs/KULLANIM.md) · [0.6 doğrulama kaydı](docs/validation-0.6/acceptance.json).
+
+**Geliştirme sürümüdür; uygun dahili disklerin bütün verileri silinir.** Windows ilk oturumu, fiziksel donanım ve Secure Boot kabul sınırları doğrulama kaydında belirtilir.
 
 ## Mevcut durum — 6 Kasım 2026
 

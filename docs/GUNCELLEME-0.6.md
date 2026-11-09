@@ -2,6 +2,10 @@
 
 Bu sürüm, yarım kalan testten sonra kullanıcı onayıyla baştan test başlatmayı ve tam kapasiteyi azaltmadan daha büyük I/O işlemlerini ekler.
 
+**[Tüm sürümler ve güncelleme paketleri — Google Drive arşivi](https://drive.google.com/drive/folders/1jhm70ZRFvDzygHyTDAkBl_MCeJ69FVtC?usp=sharing)**
+
+Bu yönerge için klasörden `VEDT-0.6-USB-GUNCELLEME.zip` dosyasını indirin.
+
 ## Mevcut USB'yi güncelleme
 
 1. USB'yi Windows çalışan bir bilgisayara takın. ZIP paketini **bilgisayarın içine** tamamen çıkartın; USB'nin üzerine çıkartmayın.
