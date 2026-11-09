@@ -20,6 +20,7 @@ def active(tmp_path, phase):
 def test_interrupted_job_never_repeats_destructive_tests(tmp_path, monkeypatch):
     reports = media(tmp_path)
     active(tmp_path, 'testing')
+    monkeypatch.setattr(combined, 'current_targets', lambda: [])
     monkeypatch.setattr(combined, 'machine_id', lambda: 'machine')
     with pytest.raises(ValueError, match='yeniden silme engellendi'):
         combined.run(reports)
@@ -74,3 +75,60 @@ def test_new_disk_starts_new_job_only_after_completed_job():
     with pytest.raises(ValueError):
         combined.target_change(active, [new], False)
     assert combined.target_change(active, [new], True) is True
+
+
+def test_restart_requires_both_confirmations_and_preserves_old_files(tmp_path, monkeypatch):
+    reports = media(tmp_path)
+    previous = {'job_id': 'b' * 24, 'phase': 'testing'}
+    folder = reports / 'jobs' / previous['job_id']
+    folder.mkdir(parents=True)
+    evidence = folder / 'old-report.pdf'
+    evidence.write_bytes(b'old evidence')
+    targets = [{'serial': 'SN1', 'model': 'SSD', 'size_bytes': 1000000000}]
+    monkeypatch.setattr(combined.os, 'sync', lambda: None, raising=False)
+    for responses in [('N',), ('R', 'HAYIR')]:
+        answers = iter(responses)
+        assert not combined.request_restart(reports, previous, targets, lambda _: next(answers))
+        assert list(folder.glob('yeniden-baslatma-*.json')) == []
+    answers = iter(['r', 'SIL'])
+    assert combined.request_restart(reports, previous, targets, lambda _: next(answers))
+    assert evidence.read_bytes() == b'old evidence'
+    audit = json.loads(next(folder.glob('yeniden-baslatma-*.json')).read_text(encoding='utf-8'))
+    assert audit['new_targets'] == targets
+    assert audit['previous_job'] == previous
+
+
+def test_unattended_restart_never_accepts_implicit_consent(tmp_path, monkeypatch):
+    monkeypatch.setattr(combined.sys.stdin, 'isatty', lambda: False)
+    assert not combined.request_restart(tmp_path, {}, [])
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_confirmed_restart_creates_new_job_keeps_evidence_and_counter(tmp_path, monkeypatch):
+    from disktest import batch
+    reports=media(tmp_path)
+    active(tmp_path,'testing')
+    old=reports/'jobs'/('b'*24);old.mkdir(parents=True)
+    (old/'evidence.txt').write_text('keep')
+    counter=reports/'vedt-numaralar';counter.mkdir()
+    (counter/'VEDT54.json').write_text('reserved')
+    targets=[{'serial':'SN1','model':'SSD','size_bytes':67108864,'wwn':'wwn1'}]
+    monkeypatch.setattr(combined,'machine_id',lambda:'machine')
+    monkeypatch.setattr(combined,'current_targets',lambda:targets)
+    monkeypatch.setattr(combined.os,'sync',lambda:None,raising=False)
+    actual=combined.request_restart;answers=iter(['R','SIL'])
+    monkeypatch.setattr(combined,'request_restart',lambda *args:actual(*args,read=lambda _:next(answers)))
+    calls=[]
+    def fake_batch(folder,**kwargs):
+        calls.append((folder,kwargs))
+        (folder/'windows-hazirlik.json').write_text(json.dumps({'targets':[]}))
+        return {'queue':targets,'complete':False}
+    monkeypatch.setattr(batch,'run_batch',fake_batch)
+    assert combined.run(reports)
+    assert len(calls)==1 and calls[0][0]!=old
+    assert calls[0][1]['numbering_reports']==reports
+    assert (old/'evidence.txt').read_text()=='keep'
+    assert (counter/'VEDT54.json').read_text()=='reserved'
+    assert len(list(old.glob('yeniden-baslatma-*.json')))==1
+    new=json.loads((tmp_path/'VEDT-ACTIVE.json').read_text())
+    assert new['job_id']!='b'*24 and new['target_identities']==targets

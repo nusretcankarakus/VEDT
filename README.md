@@ -4,7 +4,13 @@ Türkçe arayüz ve raporlarla HDD/SSD testi için geliştirilen açık kaynak t
 
 **Geliştirme sürümüdür. Ham disk testleri hedef diskin bütün verilerini siler.** Otomatik mod, açılış USB'si dışındaki uygun dahili diskleri sırayla seçer. Birleşik geliştirme imajı oluşturuldu; fiziksel donanım kabulü ve yeni Windows akışının tam kurulum kabulü henüz tamamlanmadı.
 
-## USB imajını indir
+## 0.6 güncellemesi — 9 Kasım 2026
+
+Yarım kalan işlerde `R` + Enter, ardından `SIL` + Enter ile açık onay vererek baştan test başlatılabilir. Eski raporlar ve numaratör korunur. Tam kapasite yazma, SHA-256 ve iki tam okuma korunarak büyük bloklu sıralı I/O eklendi; son parça ayrıca doğrulanır. [Mevcut USB’yi güncelleme ve süre açıklaması](docs/GUNCELLEME-0.6.md).
+
+**Aşağıdaki Google Drive bağlantısı önceki 0.5 imajınadır; 0.6 düzeltmelerini içermez. Yeni imaj/güncelleme paketinin indirme bağlantısı henüz eklenmedi.**
+
+## USB imajını indir — önceki 0.5
 
 **[VEDT birleşik USB imajını indir — Google Drive](https://drive.google.com/file/d/1NOxrlyXA1J8_HA6QbCUYt4iy1yqf5YO3/view?usp=sharing)**
 

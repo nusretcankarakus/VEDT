@@ -69,7 +69,7 @@ def sections(session):
         f"Kapasite: {session['target']['bytes']} bayt", 
         f"Mantıksal sektör: {session.get('logical_sector_bytes', 'Bilgi alınamadı')} bayt",
         'Tam kapasite veri doğrulaması: ' + ('Tamamlandı' if session.get('full_capacity_verified') else 'Tamamlandığı doğrulanmadı'),
-        'Yöntem: SHA-256 veri doğrulaması. Ham disk testinde doğrudan erişim, tek iş ve tek bekleyen işlem kullanılır.'
+        ('Yöntem: SHA-256; tam taramada büyük bloklar, 16 bekleyen işlem ve ayrıca son parça kontrolü kullanılır. İki tam okuma doğrulaması korunur.' if session.get('io_policy') == 'full-capacity-large-body-exact-tail-sha256' else 'Yöntem: SHA-256 veri doğrulaması. Ham disk testinde doğrudan erişim, tek iş ve tek bekleyen işlem kullanılır.')
         if raw else 'Yöntem: yeni geçici dosyada yazma, geri okuma ve karışık işlem denemesi.',
         'Ham ölçümler ve sensör okumaları aynı klasördeki session.json dosyasında saklanır.'
     ])]

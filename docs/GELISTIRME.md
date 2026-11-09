@@ -38,7 +38,7 @@ Ayrılmış Linux derleyicide Live dosya ağacı ve hazırlanan yerel Windows do
 ```sh
 apt-get install mtools dosfstools ntfs-3g util-linux
 python -m pip install -e ".[vmtest]"
-python scripts/make-combined-image.py /build/live/binary /build/vedt-media/winpe /build/vedt-media/media/install.wim /build/vedt-media/windows-media.json /build/VEDT-combined-0.5-dev.img
+python scripts/make-combined-image.py /build/live/binary /build/vedt-media/winpe /build/vedt-media/media/install.wim /build/vedt-media/windows-media.json /build/VEDT-combined-0.6-dev.img
 ```
 
 Betik yalnız yeni düzenli imaj dosyası oluşturur. NTFS biçimleme için sadece bu dosyanın payload aralığına bağlı, backing dosyası kontrol edilen geçici loop aygıtı kullanır; kullanıcıdan fiziksel hedef yolu almaz. Mevcut imajın üzerine yazmaz. En az 35 GB boş derleme alanı ayırın. Rootfs/WinPE imajları ayrıca doğrulanmalıdır.

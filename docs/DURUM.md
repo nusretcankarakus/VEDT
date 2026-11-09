@@ -1,3 +1,9 @@
+# Güncelleme — 9 Kasım 2026 / 0.6.0.dev0
+
+Yarım işte R ve SIL onayıyla yeniden test, eski kayıtların korunması ve tam alan büyük blok/son parça I/O eklendi. [Güncelleme adımları ve süre sınırları](GUNCELLEME-0.6.md). 158 Windows kaynak testi geçti; 7 Linux testi atlandı. Linux’ta yeni normal dosyalarda gerçek fio ile 4 tam alan/son parça/bozulma kontrolü geçti. Donanımda hızlanma oranı henüz ölçülmedi. Yeni sürümün doğrulama kaydı validation-0.6/acceptance.json dosyasındadır.
+
+Aşağıdaki 0.5 kaydı geçmiş kapsamı gösterir; Windows/fiziksel/Secure Boot eksikleri sürer.
+
 # Geliştirme durumu — 6 Kasım 2026
 
 Kaynak: 0.5.0.dev0. Birleşik geliştirme imajı `VEDT-combined-0.5-dev.img` oluşturuldu: 13.692.305.408 bayt. Windows kaynak kontrolünde 151 test geçti, 3 Linux testi atlandı. Envanter korumasından önceki Linux kontrolünde 150 test geçti, 3 Windows testi atlandı; envanter koruması ayrıca hedefli kontrollerden geçirildi. Bunlar donanım test sayıları değildir.

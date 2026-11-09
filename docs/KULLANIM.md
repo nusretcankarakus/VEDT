@@ -1,5 +1,7 @@
 # VEDT kullanım kılavuzu
 
+**0.6 güncellemesi:** Yarım kalan testte `R` ve `SIL` onayıyla yeniden test başlatılabilir. Mevcut USB’yi raporları ve numaratörü koruyarak güncellemek için [0.6 yönergesini](GUNCELLEME-0.6.md) okuyun. Aşağıdaki Drive bağlantısı ve SHA-256 önceki 0.5 imajına aittir.
+
 Bu belge birleşik geliştirme imajının kullanım akışını anlatır. İmajın kabul durumunu ve SHA-256 özetini beraberindeki build/validation dosyalarından kontrol edin. Fiziksel donanım kabulü tamamlanmış ürün olarak değerlendirmeyin.
 
 ## İndirme
@@ -56,7 +58,7 @@ PDF önce genel özeti, sonra teknik ayrıntıları verir. Son bölümdeki **Yap
 
 ## 6. Yeniden başlatma ve hata
 
-USB'deki son iş kaydı, aynı bilgisayar ve aynı disklerle yeniden başlatıldığında yeniden silmeyi engeller; tamamlanan Windows hazırlığına yönlendirir. Son iş tamamlandıysa ve yeni bir dahili disk kimliği görülürse yeni numaralı test başlar. Yarım iş sırasında disk kimlikleri değişirse işlem durur. Yarım kalan bir test/kurulum varsa durur ve inceleme ister. **Hata çözmek için iş kayıtlarını gelişigüzel silmeyin.** Aynı bilgisayarı bilinçli olarak yeniden test etmek ayrı servis işlemi olmalıdır; normal yeniden başlatmayla otomatik yeni test başlatılmaz.
+USB'deki son iş kaydı, aynı bilgisayar ve aynı disklerle yeniden başlatıldığında yeniden silmeyi engeller; tamamlanan Windows hazırlığına yönlendirir. Son iş tamamlandıysa ve yeni bir dahili disk kimliği görülürse yeni numaralı test başlar. Yarım iş sırasında disk kimlikleri değişirse işlem durur. 0.6 sürümünde yarım kalan işte R + Enter ve ardından SIL + Enter onayıyla bütün uygun dahili diskler baştan test edilebilir. Eski iş kayıtları ve raporlar korunur; kaldığı bayttan sürdürme yapılmaz. **Hata çözmek için iş kayıtlarını gelişigüzel silmeyin.** Aynı bilgisayarı bilinçli olarak yeniden test etmek ayrı servis işlemi olmalıdır; normal yeniden başlatmayla otomatik yeni test başlatılmaz.
 
 Numaratör USB'ye özeldir ve her disk testi için artar. USB yeniden imajlanırsa kayıtlar/sayaç kaybolur; farklı USB'lerin sayaçları ortak değildir. Raporları ve numaratör kayıtlarını düzenli arşivleyin.
 

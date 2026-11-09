@@ -59,3 +59,19 @@ def test_operator_mode_requires_separate_runtime_consent(tmp_path):
 def test_physical_mode_never_allows_fault_injection():
     with pytest.raises(SafetyError, match='bozulma'):
         replace(settings(), laboratory=False, inject_corruption=True).validate(TARGET.serial)
+
+
+@pytest.mark.parametrize('size', [64*1024**2, 64*1024**2+512, 64*1024**2+4096, 1000204886016])
+def test_large_block_ranges_cover_every_byte_including_tail(size):
+    from disktest.raw import capacity_ranges
+    ranges = capacity_ranges(size, 512)
+    assert ranges[0]['bs'] == 1024**2
+    assert sum(row['size'] for row in ranges) == size
+    offset = 0
+    for row in ranges:
+        assert row['offset'] == offset
+        assert row['offset'] % 512 == 0
+        assert row['size'] % row['bs'] == 0
+        assert row['bs'] % row['verify_interval'] == 0
+        offset += row['size']
+    assert len(ranges) <= 2

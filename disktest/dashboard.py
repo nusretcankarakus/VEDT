@@ -57,7 +57,8 @@ class Dashboard:
                  self.color('[' + '█' * filled + '░' * (35 - filled) + '] ' + progress, '1;36'),
                  self.color(f'Hız       : {speed:.2f} MiB/sn', '36'),
                  self.color(f'Sıcaklık  : {temp_text}', '31;1' if temperature is not None and temperature >= 60 else '33'),
-                 f'Geçen süre: {elapsed}', '', self.color('TAMAMLANAN AŞAMALAR', '1;34'),
+                 f'Geçen süre: {elapsed}',
+                 'Bu parça için tahmini kalan: ' + (duration(row['eta_seconds']) if row.get('eta_seconds') is not None else 'hesaplanıyor'), '', self.color('TAMAMLANAN AŞAMALAR', '1;34'),
                  *[self.color(text('  ✓ ' + item), '32') for item in self.stages[-6:]], '',
                  self.color('İşlemler otomatik yürütülüyor. Durdurmak için Ctrl+C.', '33')]
         self.stream.write('\x1b[H\x1b[2J' + '\n'.join(lines) + '\n')
@@ -66,7 +67,7 @@ class Dashboard:
     def finish(self, session, directory):
         if session.get('full_capacity_verified') and self.last:
             self({**self.last, 'stage': 'Bütün test aşamaları tamamlandı', 'percent': 100,
-                  'elapsed_seconds': session.get('elapsed_seconds', 0)})
+                  'elapsed_seconds': session.get('elapsed_seconds', 0), 'eta_seconds': 0})
         status = session['status']
         label = self.color(status_text(status), {'FAIL': '1;97;41', 'WARNING': '1;30;43',
                            'INCOMPLETE': '1;33', 'CANCELLED': '1;33', 'PASS': '1;97;42'}.get(status, '37'))

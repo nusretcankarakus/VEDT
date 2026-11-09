@@ -1,0 +1,74 @@
+{
+  "date": "2026-11-09",
+  "version": "0.6.0.dev0",
+  "image": {
+    "file": "VEDT-combined-0.6-dev.img",
+    "bytes": 13692305408,
+    "sha256": "533e5bfd5da7cbbab4f80baa272953bb56f68aba49d15cc74b81bff6126107d9",
+    "live_files_verified": 279,
+    "windows_wim_sha256": "b0beb7f6fe12d5d31c3726640bdd28ddd125abfbc5e25243234adcdfcbfe5b66",
+    "root_sha256": "4522918e4a9ba1b8ce6ca5a419c6d0a396c0a90e85cc8429bb97112cc63c8382"
+  },
+  "usb_update": {
+    "file": "VEDT-0.6-USB-GUNCELLEME.zip",
+    "bytes": 891553571,
+    "sha256": "8ff7b291d9138124bd99201160631ce8fefe7c9e3156d06f90b98e51a941db79",
+    "windows_regular_file_simulation_cases": [
+      "success",
+      "decline",
+      "bad-hash refusal",
+      "copy-failure rollback"
+    ],
+    "all_passed": true,
+    "physical_usb_update_verified": false
+  },
+  "source_checks": {
+    "windows_passed": 158,
+    "windows_skipped_linux_only": 7,
+    "linux_real_fio_regular_file_cases_passed": 4,
+    "covers": [
+      "whole capacity",
+      "512-byte tail",
+      "4096-byte tail",
+      "corruption at last byte rejected"
+    ]
+  },
+  "native_vm": {
+    "seeded_interrupted_job_restarted_after_R_and_SIL": true,
+    "targets_unchanged_until_both_confirmations": true,
+    "old_job_evidence_preserved": true,
+    "existing_VEDT54_reservation_preserved": true,
+    "reports": [
+      {
+        "account": "VEDT55",
+        "report_file_stem": "VEDT55_VEDT-QA-NVME",
+        "bytes": 67112960,
+        "tail_bytes": 4096,
+        "six_stages_passed": true,
+        "manifest_verified": true
+      },
+      {
+        "account": "VEDT56",
+        "report_file_stem": "VEDT56_VEDT-QA-SATA",
+        "bytes": 67109376,
+        "tail_bytes": 512,
+        "six_stages_passed": true,
+        "manifest_verified": true
+      }
+    ],
+    "physical_hardware_tested": false,
+    "actual_power_cut_tested": false,
+    "diagnostic_debug_shell_enabled": true,
+    "boot_scope": "QEMU x64 UEFI, same final root; direct kernel used for diagnostic run; GRUB reached Live in earlier run",
+    "shutdown": "systemctl poweroff after completion",
+    "fat_reader_dirty_flag_warning": true
+  },
+  "not_accepted": [
+    "Physical 1 TB speed improvement",
+    "Actual power interruption recovery",
+    "Physical USB update",
+    "New full-capacity Linux to Windows first logon",
+    "Secure Boot",
+    "Prior Windows AppXSvc crashes unresolved"
+  ]
+}

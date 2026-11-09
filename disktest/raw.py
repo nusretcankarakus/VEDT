@@ -64,6 +64,24 @@ class RawSettings:
             raise ValueError('Hata enjeksiyonu yalnızca boolean olabilir.')
 
 
+def capacity_ranges(size, sector):
+    """Exact coverage, large sequential body and a separately aligned tail."""
+    if sector not in (512, 4096) or size < 64 * 1024**2 or size % sector:
+        raise ValueError('Geçersiz kapasite/sektör hizası.')
+    large = 1024**2
+    body = size // large * large
+    ranges = [{'offset': 0, 'size': body, 'bs': large, 'verify_interval': 65536}]
+    tail = size - body
+    if tail:
+        block = 65536
+        while tail % block:
+            block //= 2
+        if block < sector:
+            raise ValueError('Son bölüm sektör hizalı değil.')
+        ranges.append({'offset': body, 'size': tail, 'bs': block, 'verify_interval': block})
+    return ranges
+
+
 def load_settings(path):
     data = json.loads(Path(path).read_text(encoding='utf-8-sig'))
     try:
@@ -182,17 +200,22 @@ def run_raw(settings, confirmation, reports, event=lambda _: None, *, accept_dat
                     time.sleep(max(0, min(5, idle_end - time.monotonic())))
                     smart(device, 'boşta')
             size = settings.target.size_bytes
-            block = 65536 if size % 65536 == 0 else 4096 if size % 4096 == 0 else device.logical_sector
+            ranges = capacity_ranges(size, device.logical_sector)
+            session['capacity_io_ranges'] = ranges
+            block = 65536
+            session['io_policy'] = 'full-capacity-large-body-exact-tail-sha256' 
             if block < device.logical_sector:
                 raise SafetyError('Blok boyutu mantıksal sektörden küçük.')
 
             def stage(name, options, workload_size=size, bs=block, verify_only=False,
-                      require_bytes=None, direction='both'):
+                      require_bytes=None, direction='both', offset=0, row=None, completed_before=0, total_bytes=None, sequential=False):
                 check_time()
                 device.boundary()
                 smart(device, 'aşama öncesi', name)
-                row = {'name': name, 'status': 'RUNNING', 'bytes': 0, 'seconds': 0, 'mib_per_s': 0}
-                session['stages'].append(row)
+                if row is None:
+                    row = {'name': name, 'status': 'RUNNING', 'bytes': 0, 'seconds': 0, 'mib_per_s': 0}
+                    session['stages'].append(row)
+                row['status'] = 'RUNNING'
                 since = time.monotonic()
                 baseline = device.stats()
                 previous = baseline
@@ -202,7 +225,9 @@ def run_raw(settings, confirmation, reports, event=lambda _: None, *, accept_dat
                 process = None
                 stdout = stderr = ''
                 command = [executable, '--name=disktest-raw', f'--filename=/proc/self/fd/{device.fd}',
-                           f'--size={workload_size}', f'--bs={bs}', '--ioengine=psync', '--iodepth=1',
+                           f'--size={workload_size}', f'--offset={offset}', f'--bs={bs}',
+                           '--ioengine=libaio' if sequential else '--ioengine=psync',
+                           '--iodepth=16' if sequential else '--iodepth=1',
                            '--numjobs=1', '--direct=1', '--allow_file_create=0', '--eta=never',
                            '--output-format=json', '--verify_state_save=0', '--verify_state_load=0',
                            '--verify_fatal=1', '--end_fsync=1'] + options
@@ -233,7 +258,8 @@ def run_raw(settings, confirmation, reports, event=lambda _: None, *, accept_dat
                             sample = {'stage': name, 'elapsed_seconds': now - started,
                                       'source': 'linux-completed-device-io', 'read_bytes': delta[0],
                                       'write_bytes': delta[1], 'mib_per_s': speed,
-                                      'percent': min(100, completed * 100 / require_bytes) if require_bytes else None,
+                                      'eta_seconds': max(0, ((require_bytes or workload_size)-completed) * (now-since) / completed) if completed > 0 else None,
+                                      'percent': min(100, (completed_before + completed) * 100 / (total_bytes or require_bytes)) if require_bytes else None,
                                       'temperature_c': session['temperature_c']}
                             session['telemetry'].append(sample)
                             if len(session['telemetry']) > 4096:
@@ -247,10 +273,9 @@ def run_raw(settings, confirmation, reports, event=lambda _: None, *, accept_dat
                                                    'stderr': stderr, 'phantom_writes_excluded': verify_only})
                     if require_bytes is not None and count != require_bytes:
                         raise FioError(f'Aşama eksik: {count}/{require_bytes} bayt.')
-                    row['bytes'] = count
+                    row['bytes'] += count
                     job = result['jobs'][0]
-                    row['mib_per_s'] = (job.get('read', {}).get('bw_bytes', 0) +
-                        (0 if verify_only else job.get('write', {}).get('bw_bytes', 0))) / 1024**2
+                    row['mib_per_s'] = row['bytes'] / 1024**2 / max(row['seconds'] + time.monotonic() - since, 1e-9)
                     device.boundary()
                     row['status'] = 'PASS'
                 except BaseException as exc:
@@ -269,7 +294,18 @@ def run_raw(settings, confirmation, reports, event=lambda _: None, *, accept_dat
                             exc.args = (f'Veri uyuşmazlığı: {offset} bayt adresinden başlayan {length} baytlık blok.',)
                     raise
                 finally:
-                    row['seconds'] = time.monotonic() - since
+                    row['seconds'] += time.monotonic() - since
+
+            def capacity_stage(name, options, verify_only=False, direction='read'):
+                row = {'name': name, 'status': 'RUNNING', 'bytes': 0, 'seconds': 0, 'mib_per_s': 0}
+                session['stages'].append(row)
+                for part in ranges:
+                    stage(name, options + [f"--verify_interval={part['verify_interval']}"],
+                          workload_size=part['size'], bs=part['bs'], offset=part['offset'],
+                          verify_only=verify_only, require_bytes=part['size'], direction=direction,
+                          row=row, completed_before=row['bytes'], total_bytes=size, sequential=True)
+                if row['bytes'] != size:
+                    raise FioError('Tam kapasite kapsamı eksik.')
 
             bench = min(size, 32 * 1024**2)
             stage('Sıralı okuma ölçümü', ['--rw=read', '--readonly'], workload_size=bench,
@@ -277,8 +313,7 @@ def run_raw(settings, confirmation, reports, event=lambda _: None, *, accept_dat
             session['virtual_block_target_tested'] = settings.laboratory
             stage('4 KiB rastgele okuma / QD1', ['--rw=randread', '--readonly', '--io_size=4194304',
                   '--number_ios=1024'], bs=4096, require_bytes=4194304, direction='read')
-            stage('Tam kapasite yazma / SHA-256', ['--rw=write', '--verify=sha256', '--do_verify=0'],
-                  require_bytes=size, direction='write')
+            capacity_stage('Tam kapasite yazma / SHA-256', ['--rw=write', '--verify=sha256', '--do_verify=0'], direction='write')
             if settings.inject_corruption:
                 device.boundary()
                 offset = block + 17
@@ -291,20 +326,18 @@ def run_raw(settings, confirmation, reports, event=lambda _: None, *, accept_dat
                 session['injected_fault'] = {'kind': 'controlled-data-mismatch', 'offset_bytes': offset}
                 session['warnings'].append('LAB: Kontrollü veri bozulması özellikle uygulandı; gerçek cihaz arızası değildir.')
             verify = ['--rw=write', '--verify=sha256', '--verify_only=1', '--do_verify=1']
-            stage('Tam kapasite geri okuma doğrulaması', verify, verify_only=True,
-                  require_bytes=size, direction='read')
+            capacity_stage('Tam kapasite geri okuma doğrulaması', verify, verify_only=True)
             # Keep this bounded workload within one address-space pass. fio
             # stops at the device range boundary on small targets even when
             # number_ios requests more operations.
-            mixed_operations = min(settings.mixed_operations, size // block)
+            mixed_operations = min(settings.mixed_operations, ranges[0]['size'] // block)
             mixed_bytes = mixed_operations * block
             session['effective_mixed_operations'] = mixed_operations
             stage('Karışık okuma/yazma', ['--rw=randrw', '--rwmixread=50', '--verify=sha256',
-                  '--do_verify=0', '--verify_header_seed=0', '--verify_write_sequence=0',
+                  '--do_verify=0', '--verify_header_seed=0', '--verify_write_sequence=0', '--verify_interval=65536',
                   f'--number_ios={mixed_operations}', f'--io_size={mixed_bytes}'],
-                  require_bytes=mixed_bytes)
-            stage('Karışık test sonrası tam doğrulama', verify, verify_only=True,
-                  require_bytes=size, direction='read')
+                  workload_size=ranges[0]['size'], require_bytes=mixed_bytes)
+            capacity_stage('Karışık test sonrası tam doğrulama', verify, verify_only=True)
             session['full_capacity_verified'] = True
             after = smart(device)
             session['smart_after'] = after
